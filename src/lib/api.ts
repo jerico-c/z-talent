@@ -22,7 +22,7 @@ export const platformStats: PlatformStats[] = [
 
 /** GET /api/v1/me */
 export const currentUser = {
-  name: "Nadia Prameswari",
+  name: "John Doe",
   initials: "NP",
   city: "Batam",
   skillLevel: "Level 3 · Praktisi",
