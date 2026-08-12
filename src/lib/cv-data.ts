@@ -62,12 +62,12 @@ export const newId = () => Math.random().toString(36).slice(2, 10);
 /** Contoh data agar pratinjau langsung terlihat hidup saat pertama dibuka. */
 export const sampleCv: CvData = {
   personal: {
-    fullName: "Nadia Prameswari",
+    fullName: "John Doe",
     jobTitle: "Spesialis Pemasaran Digital",
-    email: "nadia.prameswari@email.com",
+    email: "john.doe@email.com",
     phone: "+62 812 3456 7890",
-    location: "Batam, Kepulauan Riau",
-    linkedin: "linkedin.com/in/nadiaprameswari",
+    location: "Magelang, Jawa Tengah",
+    linkedin: "linkedin.com/in/johndoe",
     summary:
       "Spesialis pemasaran digital dengan 2 tahun pengalaman mendampingi UMKM tumbuh melalui konten organik dan iklan berbayar. Mengelola anggaran iklan hingga Rp 15 juta per bulan dengan ROAS 3,4x, serta membangun sistem konten yang menaikkan penjualan marketplace sebesar 42%.",
   },
