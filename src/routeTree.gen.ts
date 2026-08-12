@@ -14,6 +14,7 @@ import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CvRouteImport } from './routes/cv'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SiapKerjaRouteImport } from './routes/siap-kerja'
 
@@ -42,6 +43,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/courses': typeof CoursesRoute
   '/cv': typeof CvRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/siap-kerja': typeof SiapKerjaRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/courses': typeof CoursesRoute
   '/cv': typeof CvRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/siap-kerja': typeof SiapKerjaRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/courses': typeof CoursesRoute
   '/cv': typeof CvRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/siap-kerja': typeof SiapKerjaRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/cv'
     | '/dashboard'
+    | '/login'
     | '/settings'
     | '/siap-kerja'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/cv'
     | '/dashboard'
+    | '/login'
     | '/settings'
     | '/siap-kerja'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/cv'
     | '/dashboard'
+    | '/login'
     | '/settings'
     | '/siap-kerja'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   CoursesRoute: typeof CoursesRoute
   CvRoute: typeof CvRoute
   DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
   SiapKerjaRoute: typeof SiapKerjaRoute
 }
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoursesRoute: CoursesRoute,
   CvRoute: CvRoute,
   DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
   SiapKerjaRoute: SiapKerjaRoute,
 }

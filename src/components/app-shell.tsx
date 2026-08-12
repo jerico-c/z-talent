@@ -9,7 +9,6 @@ import {
   Bell,
   Menu,
   X,
-  Zap,
   LogOut,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -61,12 +60,14 @@ export function AppShell({
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
+        {/* BAGIAN LOGO Z-TALENT */}
         <div className="flex h-16 items-center justify-between gap-2 border-b border-sidebar-border px-4">
           <Link to="/" className="flex min-w-0 items-center gap-2">
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-brand text-primary-foreground">
-              <Zap className="size-4" />
-            </span>
-            <span className="truncate text-sm font-bold tracking-tight">Z-Talent Nexus</span>
+             <img 
+              src="/logo.png" 
+              alt="Z-Talent Logo" 
+              className="h-10 w-auto object-contain" 
+            />
           </Link>
           <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="Tutup menu">
             <X className="size-5" />
@@ -83,8 +84,8 @@ export function AppShell({
                 onClick={() => setOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                   active
-                    ? "bg-primary-soft text-primary"
-                    : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+                    ? "bg-slate-900 text-white shadow-md" // Aksen Navy Blue untuk menu aktif
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
                 <Icon className="size-4 shrink-0" />
@@ -99,7 +100,7 @@ export function AppShell({
           <Button
             asChild
             variant="outline"
-            className="w-full justify-start gap-3 rounded-xl text-muted-foreground hover:text-foreground"
+            className="w-full justify-start gap-3 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           >
             <Link to="/" onClick={() => setOpen(false)}>
               <LogOut className="size-4 shrink-0" />
@@ -108,11 +109,12 @@ export function AppShell({
           </Button>
         </div>
 
-        <div className="m-3 rounded-2xl bg-accent-soft p-4">
-          <p className="text-xs font-semibold text-muted-foreground">XP Keterampilan</p>
-          <p className="mt-1 text-sm font-bold">{currentUser.xp}% menuju Level 4</p>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-card">
-            <div className="h-full rounded-full bg-gradient-brand" style={{ width: `${currentUser.xp}%` }} />
+        <div className="m-3 rounded-2xl bg-slate-50 border border-slate-100 p-4">
+          <p className="text-xs font-semibold text-slate-500">XP Keterampilan</p>
+          <p className="mt-1 text-sm font-bold text-slate-800">{currentUser.xp}% menuju Level 4</p>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
+            {/* Aksen Orange untuk Progress XP */}
+            <div className="h-full rounded-full bg-orange-500 transition-all" style={{ width: `${currentUser.xp}%` }} />
           </div>
         </div>
       </aside>
@@ -135,27 +137,28 @@ export function AppShell({
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-              <Badge variant="secondary" className="hidden bg-primary-soft text-primary sm:inline-flex">
+              {/* Badge Level dengan aksen Navy/Orange ringan */}
+              <Badge variant="secondary" className="hidden bg-slate-100 text-slate-900 border border-slate-200 sm:inline-flex">
                 {currentUser.skillLevel}
               </Badge>
-              <Button variant="ghost" size="icon" className="relative rounded-xl" aria-label="Notifikasi">
+              <Button variant="ghost" size="icon" className="relative rounded-xl text-slate-600" aria-label="Notifikasi">
                 <Bell className="size-4" />
-                <span className="absolute right-2 top-2 size-2 rounded-full bg-accent" />
+                <span className="absolute right-2 top-2 size-2 rounded-full bg-orange-500" />
               </Button>
               <div className="flex items-center gap-2">
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gradient-brand text-xs font-bold text-primary-foreground">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-slate-900 text-xs font-bold text-white shadow-sm">
                   {currentUser.initials}
                 </span>
                 <div className="hidden min-w-0 leading-tight sm:block">
-                  <p className="truncate text-sm font-semibold">{currentUser.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">{currentUser.city}</p>
+                  <p className="truncate text-sm font-semibold text-slate-900">{currentUser.name}</p>
+                  <p className="truncate text-xs text-slate-500">{currentUser.city}</p>
                 </div>
               </div>
               <Button
                 asChild
                 variant="ghost"
                 size="icon"
-                className="rounded-xl text-muted-foreground hover:text-foreground"
+                className="rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50"
                 aria-label="Keluar"
                 title="Keluar"
               >

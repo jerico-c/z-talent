@@ -1,180 +1,111 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Sparkles,
-  GraduationCap,
-  Briefcase,
-  ArrowRight,
-  ShieldCheck,
-  Zap,
-  Users,
-  TrendingUp,
-} from "lucide-react";
+import { Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
+import { ArrowRight, CheckCircle2, Users, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-import heroImage from "@/assets/hero-dashboard.jpg";
-import { Button } from "@/components/ui/button";
-import { platformStats } from "@/lib/api";
+// Mengimpor gambar lokal dari folder assets
+import heroImage from '../assets/hero-dashboard.jpg';
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Z-Talent Nexus — Ekosistem Karier Anak Muda & Lowongan Kerja" },
-      {
-        name: "description",
-        content:
-          "Temukan minatmu lewat asesmen AI, raih mikro-kredensial terverifikasi, dan temukan lowongan kerja yang cocok dengan CV-mu di Z-Talent Nexus.",
-      },
-      { property: "og:title", content: "Z-Talent Nexus — Memberdayakan Generasi Emas 2045" },
-      {
-        property: "og:description",
-        content: "Asesmen keterampilan AI, mikro-kredensial vokasi, dan pencocokan lowongan kerja untuk anak muda.",
-      },
-    ],
-  }),
-  component: Landing,
+export const Route = createFileRoute('/')({
+  component: LandingPage,
 });
 
-/** Tiga pilar platform. */
-const pillars = [
-  {
-    icon: Sparkles,
-    tag: "Pilar 1",
-    title: "Asesmen Minat & Kesenjangan Keterampilan AI",
-    body: "Asesmen terpandu memetakan minatmu terhadap kebutuhan pasar kerja nyata, lalu menyebutkan keterampilan yang masih memisahkanmu dari pekerjaan impian.",
-    to: "/assessment" as const,
-  },
-  {
-    icon: GraduationCap,
-    tag: "Pilar 2",
-    title: "LMS Vokasi & Mikro-kredensial",
-    body: "Kursus singkat sesuai kebutuhan kerja bersama mitra industri. Setiap penyelesaian menerbitkan sertifikat terverifikasi blockchain yang bisa dicek perusahaan.",
-    to: "/courses" as const,
-  },
-  {
-    icon: Briefcase,
-    tag: "Pilar 3",
-    title: "Ulasan CV Cerdas & Siap Kerja",
-    body: "Pemeriksa ATS merapikan CV-mu agar lolos sistem seleksi nyata, lalu mencocokkanmu dengan lowongan kerja nyata di Indonesia yang paling sesuai keahlianmu.",
-    to: "/cv" as const,
-  },
-];
-
-function Landing() {
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigasi */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 sm:px-6">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-brand text-primary-foreground">
-              <Zap className="size-4" />
-            </span>
-            <span className="truncate font-bold tracking-tight">Z-Talent Nexus</span>
-          </div>
-          <Button asChild size="sm" className="rounded-xl">
-            <Link to="/dashboard">Masuk dasbor</Link>
-          </Button>
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      {/* Header / Navigasi Atas */}
+      <header className="w-full bg-white shadow-sm px-6 py-4 flex justify-between items-center z-10 sticky top-0">
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
+            {/* Logo Z-Talent Anda */}
+            <img 
+              src="/logo.png" 
+              alt="Z-Talent Logo" 
+              className="h-15 w-auto object-contain" 
+            />
+          </Link>
         </div>
+        <nav>
+          {/* Diubah mengarah ke /login dan menggunakan warna Navy Blue */}
+          <Link to="/login">
+            <Button className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-6 shadow-md transition-all">
+              Masuk Dasbor
+            </Button>
+          </Link>
+        </nav>
       </header>
 
-      {/* Hero */}
-      <section className="bg-hero text-ink-foreground">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
-          <div className="min-w-0">
-            <span className="inline-flex items-center gap-2 rounded-full border border-ink-foreground/15 bg-ink-foreground/5 px-3 py-1 text-xs font-semibold">
-              <ShieldCheck className="size-3.5 text-accent" />
-              Ekosistem Karier Muda · LMS · Akselerator UMKM
+      {/* Bagian Hero Section */}
+      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center p-8 lg:p-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 text-white overflow-hidden relative">
+        
+        {/* Dekorasi Latar Belakang (Opsional) */}
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-500/20 rounded-full blur-3xl mix-blend-screen pointer-events-none"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-orange-500/20 rounded-full blur-3xl mix-blend-screen pointer-events-none"></div>
+
+        {/* Konten Kiri (Teks) */}
+        <div className="w-full lg:w-1/2 flex flex-col gap-6 z-10">
+          
+          {/* Badge Label */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-400/30 bg-blue-900/30 text-blue-200 text-sm font-medium w-fit backdrop-blur-sm">
+            <CheckCircle2 className="w-4 h-4 text-orange-400" />
+            <span>Platform Pengembangan Karier Anak Muda</span>
+          </div>
+
+          {/* Headline Utama */}
+          <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight tracking-tight">
+            Wujudkan Potensi <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">
+              Generasi Z
             </span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Memberdayakan{" "}
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Generasi Emas 2045
-              </span>
-            </h1>
-            <p className="mt-5 max-w-xl text-base text-ink-muted sm:text-lg">
-              Temukan pekerjaan yang benar-benar cocok untukmu. Z-Talent Nexus membaca minatmu, menutup
-              kesenjangan keterampilan lewat mikro-kredensial, dan menghubungkanmu langsung ke proyek berbayar
-              dari UMKM di kotamu.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="group rounded-xl shadow-lift">
-                <Link to="/assessment">
-                  Mulai asesmen gratis
-                  <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-1" />
-                </Link>
+          </h1>
+
+          {/* Deskripsi Natural (Copywriting Baru) */}
+          <p className="text-lg lg:text-xl text-slate-300 max-w-xl leading-relaxed">
+            Z-Talent hadir buat kamu yang ingin bangun karier dari nol. Kami bantu kenali minatmu, asah skill lewat pelatihan yang pas, bikin CV otomatis yang tembus HRD, sampai ngehubungin kamu langsung ke lowongan kerja atau proyek UMKM terdekat. 
+          </p>
+
+          {/* Tombol CTA yang langsung diarahkan ke halaman Login */}
+          <div className="mt-4">
+            <Link to="/login">
+              <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-orange-500/25 transition-all flex items-center gap-2 group">
+                Mulai Sekarang
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-            </div>
-            <dl className="mt-10 grid grid-cols-2 gap-6 sm:max-w-md">
-              <div>
-                <dt className="flex items-center gap-1.5 text-xs text-ink-muted">
-                  <Users className="size-3.5" /> Anak muda tergabung
-                </dt>
-                <dd className="text-2xl font-bold">2.450</dd>
-              </div>
-              <div>
-                <dt className="flex items-center gap-1.5 text-xs text-ink-muted">
-                  <TrendingUp className="size-3.5" /> Tingkat penempatan
-                </dt>
-                <dd className="text-2xl font-bold">78%</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-6 rounded-[2rem] bg-gradient-brand opacity-25 blur-3xl" />
-            <img
-              src={heroImage}
-              alt="Dasbor Z-Talent Nexus menampilkan radar keterampilan, progres kursus, dan lencana sertifikat terverifikasi"
-              width={1280}
-              height={960}
-              className="relative w-full rounded-3xl border border-ink-foreground/10 shadow-lift"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Banner statistik langsung */}
-      <section className="border-y border-border bg-card">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-4">
-          {platformStats.map((s) => (
-            <div key={s.label}>
-              <p className="text-3xl font-extrabold tracking-tight text-primary">{s.value}</p>
-              <p className="mt-1 text-sm font-semibold">{s.label}</p>
-              <p className="text-xs text-muted-foreground">{s.hint}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Pilar */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
-        <h2 className="max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Tiga pilar, satu jalur berkelanjutan dari rasa ingin tahu hingga proyek berbayar
-        </h2>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {pillars.map(({ icon: Icon, tag, title, body, to }) => (
-            <Link
-              key={title}
-              to={to}
-              className="card-interactive group flex flex-col rounded-3xl border border-border bg-card p-6 shadow-soft"
-            >
-              <span className="grid size-11 place-items-center rounded-2xl bg-primary-soft text-primary">
-                <Icon className="size-5" />
-              </span>
-              <span className="mt-5 text-xs font-bold uppercase tracking-widest text-accent">{tag}</span>
-              <h3 className="mt-2 text-lg font-bold leading-snug">{title}</h3>
-              <p className="mt-3 flex-1 text-sm text-muted-foreground">{body}</p>
-              <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                Jelajahi
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-              </span>
             </Link>
-          ))}
-        </div>
-      </section>
+          </div>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        Z-Talent Nexus · dibangun untuk anak muda, UMKM, dan Generasi Emas 2045
-      </footer>
+          {/* Statistik Bawah */}
+          <div className="flex gap-10 mt-8 pt-8 border-t border-slate-700/50">
+            <div>
+              <div className="flex items-center gap-2 text-slate-400 mb-1">
+                <Users className="w-4 h-4" />
+                <span className="text-sm font-medium">Talenta Bergabung</span>
+              </div>
+              <p className="text-3xl font-bold text-white">2.450+</p>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 text-slate-400 mb-1">
+                <TrendingUp className="w-4 h-4" />
+                <span className="text-sm font-medium">Tingkat Penempatan</span>
+              </div>
+              <p className="text-3xl font-bold text-white">78%</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Konten Kanan (Gambar Hero Dashboard lokal) */}
+        <div className="w-full lg:w-1/2 mt-12 lg:mt-0 flex justify-center lg:justify-end z-10">
+          <div className="relative w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl border border-slate-700/50 transform lg:rotate-2 hover:rotate-0 transition-transform duration-500">
+            <img 
+              src={heroImage} 
+              alt="Dashboard Z-Talent" 
+              className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
+            />
+            {/* Overlay Gradient pada Gambar */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
