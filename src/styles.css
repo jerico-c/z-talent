@@ -1,0 +1,234 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Z-Talent Nexus design system
+ * Primary: tech blue · Accent: emerald (growth/youth) · Neutrals: slate
+ * All colors are oklch semantic tokens. Never hardcode colors in components.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.875rem;
+
+  --background: oklch(0.985 0.003 247.9);
+  --foreground: oklch(0.21 0.04 265.8);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.04 265.8);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.04 265.8);
+
+  --primary: oklch(0.546 0.215 262.9);
+  --primary-foreground: oklch(0.985 0.003 247.9);
+  --primary-soft: oklch(0.945 0.032 262.9);
+
+  --secondary: oklch(0.968 0.007 247.9);
+  --secondary-foreground: oklch(0.28 0.04 260);
+
+  --muted: oklch(0.968 0.007 247.9);
+  --muted-foreground: oklch(0.554 0.046 257.4);
+
+  --accent: oklch(0.663 0.163 162.5);
+  --accent-foreground: oklch(0.99 0.01 160);
+  --accent-soft: oklch(0.951 0.045 162.5);
+
+  --destructive: oklch(0.577 0.245 27.3);
+  --destructive-foreground: oklch(0.985 0.003 247.9);
+  --warning: oklch(0.769 0.155 70.1);
+  --warning-foreground: oklch(0.24 0.05 70);
+
+  --ink: oklch(0.21 0.04 265.8);
+  --ink-foreground: oklch(0.985 0.003 247.9);
+  --ink-muted: oklch(0.72 0.03 258);
+
+  --border: oklch(0.922 0.013 255.5);
+  --input: oklch(0.922 0.013 255.5);
+  --ring: oklch(0.546 0.215 262.9);
+
+  --chart-1: oklch(0.546 0.215 262.9);
+  --chart-2: oklch(0.663 0.163 162.5);
+  --chart-3: oklch(0.769 0.155 70.1);
+  --chart-4: oklch(0.627 0.2 303.9);
+  --chart-5: oklch(0.645 0.2 16.4);
+
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.21 0.04 265.8);
+  --sidebar-primary: oklch(0.546 0.215 262.9);
+  --sidebar-primary-foreground: oklch(0.985 0.003 247.9);
+  --sidebar-accent: oklch(0.968 0.007 247.9);
+  --sidebar-accent-foreground: oklch(0.21 0.04 265.8);
+  --sidebar-border: oklch(0.922 0.013 255.5);
+  --sidebar-ring: oklch(0.546 0.215 262.9);
+
+  /* Expressive tokens */
+  --gradient-brand: linear-gradient(120deg, var(--primary), var(--accent));
+  --gradient-hero: radial-gradient(
+      120% 120% at 15% 0%,
+      color-mix(in oklab, var(--primary) 45%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(90% 110% at 100% 10%, color-mix(in oklab, var(--accent) 32%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, oklch(0.19 0.045 265.8), oklch(0.16 0.04 265.8));
+  --shadow-soft: 0 1px 2px oklch(0.21 0.04 265.8 / 6%), 0 12px 32px -18px oklch(0.21 0.04 265.8 / 22%);
+  --shadow-lift: 0 18px 44px -20px color-mix(in oklab, var(--primary) 40%, transparent);
+}
+
+.dark {
+  --background: oklch(0.16 0.04 265.8);
+  --foreground: oklch(0.985 0.003 247.9);
+  --card: oklch(0.21 0.04 265.8);
+  --card-foreground: oklch(0.985 0.003 247.9);
+  --popover: oklch(0.21 0.04 265.8);
+  --popover-foreground: oklch(0.985 0.003 247.9);
+  --primary: oklch(0.65 0.19 262.9);
+  --primary-foreground: oklch(0.16 0.04 265.8);
+  --primary-soft: oklch(0.28 0.07 262.9);
+  --secondary: oklch(0.279 0.041 260);
+  --secondary-foreground: oklch(0.985 0.003 247.9);
+  --muted: oklch(0.279 0.041 260);
+  --muted-foreground: oklch(0.72 0.03 258);
+  --accent: oklch(0.72 0.16 162.5);
+  --accent-foreground: oklch(0.16 0.04 265.8);
+  --accent-soft: oklch(0.3 0.07 162.5);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.65 0.19 262.9);
+  --sidebar: oklch(0.21 0.04 265.8);
+  --sidebar-foreground: oklch(0.985 0.003 247.9);
+  --sidebar-accent: oklch(0.279 0.041 260);
+  --sidebar-accent-foreground: oklch(0.985 0.003 247.9);
+  --sidebar-border: oklch(1 0 0 / 12%);
+}
+
+@utility bg-gradient-brand {
+  background-image: var(--gradient-brand);
+}
+
+@utility bg-hero {
+  background-image: var(--gradient-hero);
+}
+
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+@utility shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+
+@utility text-gradient-brand {
+  background-image: var(--gradient-brand);
+  background-clip: text;
+  color: transparent;
+}
+
+@utility card-interactive {
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+    border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Ekspor PDF: hanya dokumen CV yang tercetak, sisanya disembunyikan. */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #cv-print-area,
+  #cv-print-area * {
+    visibility: visible !important;
+  }
+
+  #cv-print-area {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
