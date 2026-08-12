@@ -24,7 +24,7 @@ export const platformStats: PlatformStats[] = [
 export const currentUser = {
   name: "John Doe",
   initials: "NP",
-  city: "Batam",
+  city: "Magelang",
   skillLevel: "Level 3 · Praktisi",
   xp: 68,
 };

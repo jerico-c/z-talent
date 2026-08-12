@@ -158,11 +158,11 @@ export function CvBuilderForm({ cv, onChange }: Props) {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Nama lengkap" value={cv.personal.fullName} onChange={(v) => setPersonal({ fullName: v })} placeholder="Nadia Prameswari" />
+          <Field label="Nama lengkap" value={cv.personal.fullName} onChange={(v) => setPersonal({ fullName: v })} placeholder="John Doe" />
           <Field label="Posisi yang dituju" value={cv.personal.jobTitle} onChange={(v) => setPersonal({ jobTitle: v })} placeholder="Spesialis Pemasaran Digital" />
           <Field label="Email" type="email" value={cv.personal.email} onChange={(v) => setPersonal({ email: v })} placeholder="nama@email.com" />
           <Field label="Telepon / WhatsApp" value={cv.personal.phone} onChange={(v) => setPersonal({ phone: v })} placeholder="+62 812 3456 7890" />
-          <Field label="Kota" value={cv.personal.location} onChange={(v) => setPersonal({ location: v })} placeholder="Batam" />
+          <Field label="Kota" value={cv.personal.location} onChange={(v) => setPersonal({ location: v })} placeholder="Magelang" />
           <Field label="LinkedIn / portofolio" value={cv.personal.linkedin} onChange={(v) => setPersonal({ linkedin: v })} placeholder="linkedin.com/in/…" />
         </div>
 

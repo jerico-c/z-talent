@@ -39,7 +39,7 @@ function SettingsPage() {
             </div>
             <div className="grid gap-2 sm:col-span-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="nadia@ztalent.id" />
+              <Input id="email" type="email" defaultValue="johndoe@ztalent.id" />
             </div>
             <Button className="rounded-xl sm:col-span-2 sm:w-fit">Simpan perubahan</Button>
           </CardContent>
