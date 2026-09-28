@@ -8,11 +8,11 @@ export default [
   { ignores: ["dist", ".output", ".vinxi", "src/routeTree.gen.js"] },
   js.configs.recommended,
   {
-    files: ["**/*.{js,jsx}"],
+    files: ["**/*.{js,jsx,mjs}"],
     languageOptions: {
       ecmaVersion: 2022,
       parserOptions: { ecmaFeatures: { jsx: true } },
-      globals: { ...globals.browser, ...globals.node },
+      globals: { ...globals.browser, ...globals.node, Request: "readonly" },
     },
     plugins: {
       "react-hooks": reactHooks,

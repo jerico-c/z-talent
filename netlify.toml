@@ -6,6 +6,9 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions.server]
+  included_files = ["dist/server/**"]
+
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/server"
