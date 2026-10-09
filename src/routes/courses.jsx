@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { BadgeCheck, Clock, Layers, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { certificates, courses } from "@/lib/api";
 import { completeCourse, useUserProfile } from "@/lib/user-profile";
+import { db } from "@/lib/firebase";
 export const Route = createFileRoute("/courses")({
   head: () => ({
     meta: [
@@ -35,6 +37,33 @@ function CoursesPage() {
   const { profile } = useUserProfile();
   const [savingId, setSavingId] = useState("");
   const [error, setError] = useState("");
+  const [managedCourses, setManagedCourses] = useState([]);
+  const [trainingInfos, setTrainingInfos] = useState([]);
+
+  useEffect(() => {
+    if (!db) return undefined;
+    const stopCourses = onSnapshot(
+      collection(db, "courses"),
+      (snapshot) => setManagedCourses(snapshot.docs.map((item) => item.data())),
+      (snapshotError) => console.error("Gagal memuat kursus admin", snapshotError),
+    );
+    const stopTraining = onSnapshot(
+      collection(db, "training"),
+      (snapshot) =>
+        setTrainingInfos(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
+      (snapshotError) => console.error("Gagal memuat info pelatihan", snapshotError),
+    );
+    return () => {
+      stopCourses();
+      stopTraining();
+    };
+  }, []);
+
+  const availableCourses = [...managedCourses, ...courses].reduce((items, course) => {
+    if (!items.some((item) => item.id === course.id || item.title === course.title))
+      items.push(course);
+    return items;
+  }, []);
 
   const handleComplete = async (course) => {
     setSavingId(course.id);
@@ -59,7 +88,7 @@ function CoursesPage() {
           </p>
           {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
           <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {courses.map((c) => (
+            {availableCourses.map((c) => (
               <Card
                 key={c.title}
                 className="card-interactive flex flex-col border-border shadow-soft"
@@ -126,7 +155,53 @@ function CoursesPage() {
             ))}
           </div>
         </section>
+
+        {trainingInfos.length > 0 && (
+          <section>
+            <h2 className="text-lg font-bold tracking-tight">Info pelatihan terbaru</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Kesempatan belajar dari penyelenggara pilihan.
+            </p>
+            <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {trainingInfos.map((training) => (
+                <Card key={training.id} className="border-border shadow-soft">
+                  <CardContent className="space-y-3 p-5">
+                    <Badge variant="secondary">Pelatihan</Badge>
+                    <h3 className="font-bold leading-snug">{training.title}</h3>
+                    <p className="text-xs font-semibold text-primary">{training.provider}</p>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {training.description}
+                    </p>
+                    {training.schedule && (
+                      <p className="text-xs text-muted-foreground">Jadwal: {training.schedule}</p>
+                    )}
+                    {safeExternalUrl(training.link) && (
+                      <a
+                        href={safeExternalUrl(training.link)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm font-semibold text-primary hover:underline"
+                      >
+                        Lihat info pendaftaran
+                      </a>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </AppShell>
   );
+}
+
+function safeExternalUrl(value) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : "";
+  } catch {
+    return "";
+  }
 }

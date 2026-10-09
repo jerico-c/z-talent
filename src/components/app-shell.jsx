@@ -8,11 +8,14 @@ import {
   Settings,
   Bell,
   Menu,
+  Megaphone,
+  ShieldCheck,
   X,
   LogOut,
 } from "lucide-react";
 import { useState } from "react";
 import { useUserProfile } from "@/lib/user-profile";
+import { useAdminAccess } from "@/lib/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 /** Menu sidebar — mencerminkan 3 pilar plus area akun. */
@@ -22,6 +25,7 @@ const navItems = [
   { label: "Kursus Saya", to: "/courses", icon: GraduationCap },
   { label: "CV & Portofolio", to: "/cv", icon: FileUser },
   { label: "Siap Kerja", to: "/siap-kerja", icon: Briefcase },
+  { label: "Promosi Usaha", to: "/promosi", icon: Megaphone },
   { label: "Pengaturan", to: "/settings", icon: Settings },
 ];
 /**
@@ -31,7 +35,11 @@ const navItems = [
 export function AppShell({ title, subtitle, children }) {
   const [open, setOpen] = useState(false);
   const { profile } = useUserProfile();
+  const { isAdmin } = useAdminAccess();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const visibleNavItems = isAdmin
+    ? [...navItems, { label: "Admin", to: "/admin", icon: ShieldCheck }]
+    : navItems;
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       {/* Mobile overlay */}
@@ -58,7 +66,7 @@ export function AppShell({ title, subtitle, children }) {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-          {navItems.map(({ label, to, icon: Icon }) => {
+          {visibleNavItems.map(({ label, to, icon: Icon }) => {
             const active = pathname === to;
             return (
               <Link

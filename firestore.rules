@@ -2,8 +2,141 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if owns(userId);
+      allow create: if owns(userId)
+        && request.resource.data.keys().hasOnly([
+          'uid', 'name', 'email', 'city', 'points', 'completedCourses',
+          'createdAt', 'updatedAt', 'levelName', 'title', 'minimum', 'next',
+          'progress', 'label'
+        ])
+        && request.resource.data.uid == userId
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.city is string
+        && request.resource.data.city.size() <= 100
+        && request.resource.data.points is number
+        && request.resource.data.points >= 0
+        && request.resource.data.completedCourses is list;
+      allow update: if owns(userId)
+        && request.resource.data.keys().hasOnly([
+          'uid', 'name', 'email', 'city', 'points', 'completedCourses',
+          'createdAt', 'updatedAt', 'levelName', 'title', 'minimum', 'next',
+          'progress', 'label'
+        ])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.city is string
+        && request.resource.data.city.size() <= 100
+        && request.resource.data.points is number
+        && request.resource.data.points >= 0
+        && request.resource.data.completedCourses is list;
+      allow delete: if owns(userId);
+    }
+
+    match /promotions/{promotionId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'ownerId', 'name', 'category', 'description', 'city', 'contact',
+          'link', 'imageUrl', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 2000
+        && request.resource.data.category is string
+        && request.resource.data.category.size() <= 60
+        && request.resource.data.city is string
+        && request.resource.data.city.size() <= 100
+        && request.resource.data.contact is string
+        && request.resource.data.contact.size() <= 120
+        && request.resource.data.link is string
+        && request.resource.data.link.size() <= 500
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.size() <= 500;
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.keys().hasOnly([
+          'ownerId', 'name', 'category', 'description', 'city', 'contact',
+          'link', 'imageUrl', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 2000
+        && request.resource.data.category is string
+        && request.resource.data.category.size() <= 60
+        && request.resource.data.city is string
+        && request.resource.data.city.size() <= 100
+        && request.resource.data.contact is string
+        && request.resource.data.contact.size() <= 120
+        && request.resource.data.link is string
+        && request.resource.data.link.size() <= 500
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.size() <= 500;
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    match /courses/{courseId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'id', 'title', 'level', 'hours', 'track', 'verified', 'points', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 160
+        && request.resource.data.level is string
+        && request.resource.data.hours is string
+        && request.resource.data.track is string
+        && request.resource.data.track.size() <= 80
+        && request.resource.data.verified is bool
+        && request.resource.data.points is number
+        && request.resource.data.points >= 0;
+      allow delete: if isAdmin();
+    }
+
+    match /training/{trainingId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'title', 'provider', 'description', 'schedule', 'link', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 160
+        && request.resource.data.provider is string
+        && request.resource.data.provider.size() <= 120
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 2000
+        && request.resource.data.schedule is string
+        && request.resource.data.schedule.size() <= 160
+        && request.resource.data.link is string
+        && request.resource.data.link.size() <= 500;
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

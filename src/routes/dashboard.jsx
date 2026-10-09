@@ -23,7 +23,7 @@ import { searchJobs } from "@/lib/jobs.functions";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dasbor — Z-Talent Nexus" },
+      { title: "Dasbor" },
       {
         name: "description",
         content:

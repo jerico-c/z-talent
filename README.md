@@ -111,6 +111,21 @@ Aktifkan Firestore:
 
 Di Firebase Console, buka **Build → Firestore Database**, buat database dalam mode production, lalu pasang isi file `firestore.rules`. Aplikasi menyimpan profil pada koleksi `users/{uid}`. Nama, kota, email, poin, dan daftar kursus selesai hanya dapat dibaca atau diubah oleh pemilik UID tersebut.
 
+Konfigurasi Admin:
+
+Gunakan akun Firebase Authentication terpisah untuk setiap administrator. Jangan membuat satu akun bersama dan jangan menaruh password admin atau service-account key pada variabel `VITE_*`, karena variabel tersebut masuk ke browser.
+
+Setelah akun admin dibuat di Firebase Authentication, jalankan skrip berikut dari lingkungan server atau komputer pengelola yang aman. Skrip memakai Firebase Admin SDK untuk memberi custom claim `admin: true`:
+
+```bash
+$env:FIREBASE_PROJECT_ID="project-id"
+$env:FIREBASE_CLIENT_EMAIL="firebase-adminsdk-...@project-id.iam.gserviceaccount.com"
+$env:FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+npm run admin:grant -- admin@example.com
+```
+
+Nilai `FIREBASE_*` tersebut hanya boleh berada di environment server/administrator dan tidak boleh di-commit. Setelah claim diberikan, administrator perlu keluar lalu masuk kembali. Menu **Admin** kemudian muncul dan dapat digunakan untuk menambah kursus serta info pelatihan. Aturan Firestore tetap menjadi pengaman utama; menyembunyikan menu saja tidak dianggap sebagai otorisasi.
+
 
 Jalankan Server Lokal:
 

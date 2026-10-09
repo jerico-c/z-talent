@@ -10,17 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AssessmentRouteImport } from './routes/assessment'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CvRouteImport } from './routes/cv'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PromosiRouteImport } from './routes/promosi'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SiapKerjaRouteImport } from './routes/siap-kerja'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+})
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 })
 const AssessmentRoute = AssessmentRouteImport.update({
@@ -48,6 +55,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 })
+const PromosiRoute = PromosiRouteImport.update({
+  id: '/promosi',
+  path: '/promosi',
+  getParentRoute: () => rootRouteImport,
+})
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -61,13 +73,24 @@ const SiapKerjaRoute = SiapKerjaRouteImport.update({
 
 const rootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AssessmentRoute: AssessmentRoute,
   CoursesRoute: CoursesRoute,
   CvRoute: CvRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  PromosiRoute: PromosiRoute,
   SettingsRoute: SettingsRoute,
   SiapKerjaRoute: SiapKerjaRoute,
 }
 export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)
 
+import type { getRouter } from './router.jsx'
+import type { startInstance } from './start.js'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
