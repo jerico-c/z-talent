@@ -21,7 +21,7 @@ import {
 export const Route = createFileRoute("/cv")({
   head: () => ({
     meta: [
-      { title: "Pembuat CV & Pemeriksa ATS — Z-Talent" },
+      { title: "Pembuat CV & Pemeriksa ATS — Z UP" },
       {
         name: "description",
         content:

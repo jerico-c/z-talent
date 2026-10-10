@@ -46,10 +46,10 @@ const samplePromotions = [
 export const Route = createFileRoute("/promosi")({
   head: () => ({
     meta: [
-      { title: "Promosi Usaha — Z-Talent" },
+      { title: "Promosi Usaha — Z UP" },
       {
         name: "description",
-        content: "Temukan dan promosikan usaha anak muda di komunitas Z-Talent.",
+        content: "Temukan dan promosikan usaha anak muda di komunitas Z UP.",
       },
     ],
   }),
@@ -131,7 +131,7 @@ function PromosiPage() {
   return (
     <AppShell
       title="Promosi Usaha"
-      subtitle="Temukan, kenalkan, dan dukung wirausaha muda di komunitas Z-Talent"
+      subtitle="Temukan, kenalkan, dan dukung wirausaha muda di komunitas Z UP"
     >
       <div className="grid gap-6">
         <section className="overflow-hidden rounded-3xl bg-slate-900 text-white shadow-soft">
@@ -142,7 +142,7 @@ function PromosiPage() {
                 Usaha muda, cerita nyata, peluang baru.
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
-                Bagikan produk atau jasamu kepada komunitas Z-Talent dan bantu usaha lokal saling
+                Bagikan produk atau jasamu kepada komunitas Z UP dan bantu usaha lokal saling
                 menemukan pelanggan baru.
               </p>
             </div>

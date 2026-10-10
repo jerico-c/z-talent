@@ -12,7 +12,7 @@ import { db } from "@/lib/firebase";
 export const Route = createFileRoute("/courses")({
   head: () => ({
     meta: [
-      { title: "Kursus Vokasi & Mikro-kredensial — Z-Talent Nexus" },
+      { title: "Kursus Vokasi & Mikro-kredensial — Z UP" },
       {
         name: "description",
         content:

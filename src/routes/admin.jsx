@@ -15,7 +15,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
       { title: "Admin — Kelola Kursus & Pelatihan" },
-      { name: "description", content: "Kelola katalog kursus dan informasi pelatihan Z-Talent." },
+      { name: "description", content: "Kelola katalog kursus dan informasi pelatihan Z UP." },
     ],
   }),
   component: AdminPage,
@@ -105,7 +105,7 @@ function AdminPage() {
   }
 
   return (
-    <AppShell title="Admin" subtitle="Kelola konten pembelajaran Z-Talent">
+    <AppShell title="Admin" subtitle="Kelola konten pembelajaran Z UP">
       <div className="grid gap-6">
         <section className="rounded-3xl bg-slate-900 p-6 text-white shadow-soft sm:p-8">
           <Badge className="bg-orange-400 text-slate-950">Administrator</Badge>

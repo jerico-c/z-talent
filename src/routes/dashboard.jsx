@@ -29,7 +29,7 @@ export const Route = createFileRoute("/dashboard")({
         content:
           "Pantau level keterampilan, progres kursus, dan lowongan kerja yang cocok untukmu.",
       },
-      { property: "og:title", content: "Dasbor Z-Talent Nexus kamu" },
+      { property: "og:title", content: "Dasbor Z UP kamu" },
       {
         property: "og:description",
         content:

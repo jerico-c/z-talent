@@ -22,7 +22,7 @@ import { searchJobs } from "@/lib/jobs.functions";
 export const Route = createFileRoute("/siap-kerja")({
   head: () => ({
     meta: [
-      { title: "Siap Kerja — Lowongan yang Cocok dengan CV-mu | Z-Talent Nexus" },
+      { title: "Siap Kerja — Lowongan yang Cocok dengan CV-mu | Z UP" },
       {
         name: "description",
         content:

@@ -1,5 +1,5 @@
 /**
- * Lapisan API tiruan (mock) untuk Z-Talent.
+ * Lapisan API tiruan (mock) untuk Z UP.
  *
  * Setiap data di sini mencerminkan endpoint RESTful Laravel, sehingga menukar
  * data tiruan dengan panggilan HTTP asli hanya perlu satu baris perubahan:

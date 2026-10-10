@@ -64,14 +64,14 @@ export default function LoginPage() {
     }
   };
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
+    <div className="min-h-screen bg-primary flex items-center justify-center p-4 font-sans">
+      <div className="max-w-md w-full bg-card rounded-sm shadow-[8px_8px_0_var(--foreground)] border-2 border-foreground p-8">
         {/* Logo & Header */}
         <div className="flex flex-col items-center mb-8">
           <Link to="/">
             <img
               src="/logo.png"
-              alt="Z-Talent Logo"
+              alt="Z UP Logo"
               className="h-12 w-auto mb-6 hover:opacity-80 transition-opacity"
             />
           </Link>
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <p className="text-slate-500 text-sm mt-2 text-center">
             {isLogin
               ? "Masuk untuk melanjutkan pengembangan kariermu."
-              : "Daftar sekarang dan wujudkan potensi emasmu bersama Z-Talent."}
+              : "Daftar sekarang dan wujudkan potensi emasmu bersama Z UP."}
           </p>
         </div>
 

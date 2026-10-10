@@ -10,7 +10,7 @@ import { assessmentQuestions, assessmentResult } from "@/lib/api";
 export const Route = createFileRoute("/assessment")({
   head: () => ({
     meta: [
-      { title: "Asesmen Minat & Kesenjangan Keterampilan AI — Z-Talent Nexus" },
+      { title: "Asesmen Minat & Kesenjangan Keterampilan AI — Z UP" },
       {
         name: "description",
         content:

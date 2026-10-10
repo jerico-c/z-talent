@@ -55,10 +55,10 @@ export function AppShell({ title, subtitle, children }) {
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-sidebar-border bg-sidebar transition-transform lg:static lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
-        {/* BAGIAN LOGO Z-TALENT */}
-        <div className="flex h-16 items-center justify-between gap-2 border-b border-sidebar-border px-4">
+        {/* Brand */}
+        <div className="flex h-20 items-center justify-between gap-2 border-b-2 border-sidebar-border px-4">
           <Link to="/" className="flex min-w-0 items-center gap-2">
-            <img src="/logo.png" alt="Z-Talent Logo" className="h-10 w-auto object-contain" />
+            <img src="/logo.png" alt="Z UP Logo" className="h-14 w-auto object-contain" />
           </Link>
           <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="Tutup menu">
             <X className="size-5" />
@@ -73,10 +73,10 @@ export function AppShell({ title, subtitle, children }) {
                 key={to}
                 to={to}
                 onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 rounded-sm border-2 border-transparent px-3 py-2.5 text-sm font-bold transition-colors ${
                   active
-                    ? "bg-slate-900 text-white shadow-md" // Aksen Navy Blue untuk menu aktif
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    ? "border-foreground bg-primary text-foreground shadow-[3px_3px_0_var(--foreground)]"
+                    : "text-sidebar-foreground/80 hover:border-sidebar-border hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 }`}
               >
                 <Icon className="size-4 shrink-0" />
@@ -100,15 +100,14 @@ export function AppShell({ title, subtitle, children }) {
           </Button>
         </div>
 
-        <div className="m-3 rounded-2xl bg-slate-50 border border-slate-100 p-4">
-          <p className="text-xs font-semibold text-slate-500">XP Keterampilan</p>
-          <p className="mt-1 text-sm font-bold text-slate-800">
+        <div className="m-3 rounded-sm border-2 border-sidebar-border bg-sidebar-accent p-4 shadow-[3px_3px_0_var(--primary)]">
+          <p className="text-xs font-semibold text-sidebar-foreground/70">XP Keterampilan</p>
+          <p className="mt-1 text-sm font-bold text-sidebar-foreground">
             {profile.points} poin · {profile.progress}% menuju level berikutnya
           </p>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
-            {/* Aksen Orange untuk Progress XP */}
+          <div className="mt-2 h-3 overflow-hidden border-2 border-sidebar-border bg-sidebar">
             <div
-              className="h-full rounded-full bg-orange-500 transition-all"
+              className="h-full bg-primary transition-all"
               style={{ width: `${profile.progress}%` }}
             />
           </div>
@@ -134,23 +133,20 @@ export function AppShell({ title, subtitle, children }) {
             </div>
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               {/* Badge Level dengan aksen Navy/Orange ringan */}
-              <Badge
-                variant="secondary"
-                className="hidden bg-slate-100 text-slate-900 border border-slate-200 sm:inline-flex"
-              >
+              <Badge variant="secondary" className="hidden sm:inline-flex">
                 {profile.label}
               </Badge>
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative rounded-xl text-slate-600"
+                className="relative rounded-sm text-foreground"
                 aria-label="Notifikasi"
               >
                 <Bell className="size-4" />
-                <span className="absolute right-2 top-2 size-2 rounded-full bg-orange-500" />
+                <span className="absolute right-2 top-2 size-2 border border-foreground bg-destructive" />
               </Button>
               <div className="flex items-center gap-2">
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-slate-900 text-xs font-bold text-white shadow-sm">
+                <span className="grid size-9 shrink-0 place-items-center rounded-sm border-2 border-foreground bg-primary text-xs font-bold text-foreground shadow-[2px_2px_0_var(--foreground)]">
                   {profile.name
                     .split(" ")
                     .map((part) => part[0])

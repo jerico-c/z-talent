@@ -10,10 +10,10 @@ import { saveUserProfile, useUserProfile } from "@/lib/user-profile";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Pengaturan — Z-Talent Nexus" },
+      { title: "Pengaturan — Z UP" },
       {
         name: "description",
-        content: "Kelola profil, kota, dan preferensi notifikasi Z-Talent Nexus kamu.",
+        content: "Kelola profil, kota, dan preferensi notifikasi Z UP kamu.",
       },
       { property: "og:title", content: "Pengaturan akun" },
       { property: "og:description", content: "Perbarui profil dan preferensi notifikasi kamu." },

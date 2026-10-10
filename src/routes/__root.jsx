@@ -68,13 +68,13 @@ export const Route = createRootRouteWithContext()({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Z-Talent Nexus — Ekosistem Karier & Lowongan Kerja Anak Muda" },
+      { title: "Z UP — Ekosistem Karier & Lowongan Kerja Anak Muda" },
       {
         name: "description",
         content:
           "Asesmen keterampilan AI, mikro-kredensial vokasi, dan pencocokan lowongan kerja untuk anak muda Indonesia.",
       },
-      { property: "og:title", content: "Z-Talent Nexus" },
+      { property: "og:title", content: "Z UP" },
       {
         property: "og:description",
         content:
