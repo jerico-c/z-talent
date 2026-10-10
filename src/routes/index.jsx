@@ -1,13 +1,41 @@
 import { Link } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2, Users, TrendingUp } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-// Mengimpor gambar lokal dari folder assets
-import heroImage from "../assets/hero-dashboard.jpg";
+import downArrowImage from "../assets/down_arrow.png";
+import leftArrowImage from "../assets/left_arrow.png";
+import normalImage from "../assets/normal.png";
+import rightArrowImage from "../assets/right_arrow.png";
+import upArrowImage from "../assets/up_arrow.png";
 export const Route = createFileRoute("/")({
   component: LandingPage,
 });
+
+const keyboardImages = {
+  normal: normalImage,
+  down: downArrowImage,
+  left: leftArrowImage,
+  right: rightArrowImage,
+  up: upArrowImage,
+};
+
 export default function LandingPage() {
+  const [keyboardDirection, setKeyboardDirection] = useState("normal");
+
+  const handleKeyboardHover = (event) => {
+    const { offsetX, offsetY } = event.nativeEvent;
+    const { offsetWidth, offsetHeight } = event.currentTarget;
+    const x = offsetX - offsetWidth / 2;
+    const y = offsetY - offsetHeight / 2;
+
+    if (Math.abs(x) > Math.abs(y)) {
+      setKeyboardDirection(x > 0 ? "right" : "left");
+    } else {
+      setKeyboardDirection(y > 0 ? "down" : "up");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       {/* Header / Navigasi Atas */}
@@ -88,16 +116,19 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Konten Kanan (Gambar Hero Dashboard lokal) */}
+        {/* Konten Kanan (Keyboard interaktif) */}
         <div className="w-full lg:w-1/2 mt-12 lg:mt-0 flex justify-center lg:justify-end z-10">
-          <div className="relative w-full max-w-2xl rounded-sm overflow-hidden shadow-[10px_10px_0_var(--primary)] border-2 border-ink-foreground transform lg:rotate-2 hover:rotate-0 transition-transform duration-500">
+          <div
+            className="relative w-full max-w-2xl overflow-hidden border-2 border-ink-foreground bg-black shadow-[10px_10px_0_var(--primary)] transform lg:rotate-2 hover:rotate-0 transition-transform duration-500"
+            onMouseMove={handleKeyboardHover}
+            onMouseLeave={() => setKeyboardDirection("normal")}
+            aria-label="Keyboard navigasi interaktif"
+          >
             <img
-              src={heroImage}
-              alt="Dashboard Z UP"
-              className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
+              src={keyboardImages[keyboardDirection]}
+              alt={`Keyboard Z UP arah ${keyboardDirection}`}
+              className="w-full h-auto object-contain transition-opacity duration-150"
             />
-            {/* Overlay Gradient pada Gambar */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
           </div>
         </div>
       </main>
