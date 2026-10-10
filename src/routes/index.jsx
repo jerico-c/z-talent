@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2, Users, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ const keyboardImages = {
 
 export default function LandingPage() {
   const [keyboardDirection, setKeyboardDirection] = useState("normal");
+  const navigate = useNavigate();
 
   const handleKeyboardHover = (event) => {
     const { offsetX, offsetY } = event.nativeEvent;
@@ -33,6 +34,16 @@ export default function LandingPage() {
       setKeyboardDirection(x > 0 ? "right" : "left");
     } else {
       setKeyboardDirection(y > 0 ? "down" : "up");
+    }
+  };
+
+  const handleKeyboardClick = () => {
+    if (keyboardDirection === "down") {
+      document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+    } else if (keyboardDirection === "left") {
+      document.getElementById("news")?.scrollIntoView({ behavior: "smooth" });
+    } else if (keyboardDirection === "right") {
+      navigate({ to: "/login" });
     }
   };
 
@@ -119,10 +130,13 @@ export default function LandingPage() {
         {/* Konten Kanan (Keyboard interaktif) */}
         <div className="w-full lg:w-1/2 mt-12 lg:mt-0 flex justify-center lg:justify-end z-10">
           <div
-            className="relative w-full max-w-2xl overflow-hidden border-2 border-ink-foreground bg-black shadow-[10px_10px_0_var(--primary)] transform lg:rotate-2 hover:rotate-0 transition-transform duration-500"
+            className="relative w-full max-w-2xl overflow-hidden bg-black transform lg:rotate-2 hover:rotate-0 transition-transform duration-500 cursor-pointer"
             onMouseMove={handleKeyboardHover}
             onMouseLeave={() => setKeyboardDirection("normal")}
+            onClick={handleKeyboardClick}
             aria-label="Keyboard navigasi interaktif"
+            role="button"
+            tabIndex={0}
           >
             <img
               src={keyboardImages[keyboardDirection]}
@@ -132,6 +146,56 @@ export default function LandingPage() {
           </div>
         </div>
       </main>
+
+      <section id="about" className="scroll-mt-24 bg-background px-8 py-20 lg:px-16">
+        <div className="mx-auto max-w-6xl">
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-primary">
+            Tentang Z UP
+          </p>
+          <h2 className="max-w-3xl text-4xl font-extrabold text-foreground lg:text-6xl">
+            Mulai dari potensi, tumbuh jadi prestasi.
+          </h2>
+          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-muted-foreground">
+            Z UP membantu anak muda mengenali kekuatan diri, mengembangkan skill yang relevan, dan
+            menemukan langkah karier yang sesuai. Semua dirancang agar perjalananmu dari belajar
+            sampai siap kerja terasa lebih jelas dan terarah.
+          </p>
+        </div>
+      </section>
+
+      <section id="news" className="scroll-mt-24 bg-ink px-8 py-20 text-ink-foreground lg:px-16">
+        <div className="mx-auto max-w-6xl">
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-primary">
+            News & Update
+          </p>
+          <h2 className="max-w-3xl text-4xl font-extrabold lg:text-6xl">
+            Cerita dan peluang terbaru dari Z UP.
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
+              <p className="text-sm font-bold text-primary">Segera Hadir</p>
+              <h3 className="mt-3 text-2xl font-bold">Program pengembangan skill</h3>
+              <p className="mt-3 text-ink-muted">
+                Nantikan kabar terbaru tentang pelatihan dan aktivitas pengembangan karier.
+              </p>
+            </article>
+            <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
+              <p className="text-sm font-bold text-accent">Peluang</p>
+              <h3 className="mt-3 text-2xl font-bold">Temukan langkah kariermu</h3>
+              <p className="mt-3 text-ink-muted">
+                Dapatkan informasi peluang kerja dan proyek yang relevan dengan potensimu.
+              </p>
+            </article>
+            <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
+              <p className="text-sm font-bold text-primary">Komunitas</p>
+              <h3 className="mt-3 text-2xl font-bold">Bertumbuh bersama</h3>
+              <p className="mt-3 text-ink-muted">
+                Ikuti cerita inspiratif dan insight dari talenta muda Indonesia.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
