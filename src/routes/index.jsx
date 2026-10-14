@@ -48,7 +48,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col font-sans">
+    <div className="min-h-screen bg-background flex flex-col font-body">
       {/* Header / Navigasi Atas */}
       <header className="w-full border-b-2 border-foreground bg-primary px-6 py-4 flex justify-between items-center z-10 sticky top-0">
         <div className="flex items-center">
@@ -67,82 +67,78 @@ export default function LandingPage() {
       </header>
 
       {/* Bagian Hero Section */}
-      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center p-8 lg:p-16 bg-ink text-ink-foreground overflow-hidden relative">
-        {/* Dekorasi Latar Belakang (Opsional) */}
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/30 rotate-12 pointer-events-none"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-accent/30 -rotate-12 pointer-events-none"></div>
-
-        {/* Konten Kiri (Teks) */}
-        <div className="w-full lg:w-1/2 flex flex-col gap-6 z-10">
-          {/* Badge Label */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border-2 border-primary bg-primary/10 text-primary text-sm font-bold w-fit">
-            <CheckCircle2 className="w-4 h-4 text-primary" />
-            <span>Platform Pengembangan Karier Anak Muda</span>
-          </div>
-
-          {/* Headline Utama */}
-          <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight tracking-tight">
-            Wujudkan Potensi <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">
-              Generasi Z
-            </span>
-          </h1>
-
-          {/* Deskripsi Natural (Copywriting Baru) */}
-          <p className="text-lg lg:text-xl text-slate-300 max-w-xl leading-relaxed">
-            Z UP hadir buat kamu yang ingin bangun karier dari nol. Kami bantu kenali minatmu, asah
-            skill lewat pelatihan yang pas, bikin CV otomatis yang tembus HRD, sampai ngehubungin
-            kamu langsung ke lowongan kerja atau proyek UMKM terdekat.
-          </p>
-
-          {/* Tombol CTA yang langsung diarahkan ke halaman Login */}
-          <div className="mt-4">
-            <Link to="/login">
-              <Button
-                size="lg"
-                className="bg-primary text-foreground hover:bg-primary/90 px-8 py-6 text-lg group"
-              >
-                Mulai Sekarang
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          </div>
-
-          {/* Statistik Bawah */}
-          <div className="flex gap-10 mt-8 pt-8 border-t-2 border-ink-muted/50">
-            <div>
-              <div className="flex items-center gap-2 text-ink-muted mb-1">
-                <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">Talenta Bergabung</span>
-              </div>
-              <p className="text-3xl font-bold text-primary">2.450+</p>
+      <main className="flex-1 bg-ink text-ink-foreground">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-12 px-6 py-16 sm:px-10 lg:flex-row lg:px-16 lg:py-24">
+          {/* Konten Kiri (Teks) */}
+          <div className="w-full lg:w-[48%]">
+            {/* Badge Label */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border-2 border-primary bg-primary/10 text-primary text-sm font-bold w-fit">
+              <CheckCircle2 className="w-4 h-4 text-primary" />
+              <span>Platform Pengembangan Karier Anak Muda</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2 text-ink-muted mb-1">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-sm font-medium">Tingkat Penempatan</span>
+
+            {/* Headline Utama */}
+            <h1 className="font-display text-6xl leading-[0.9] tracking-normal sm:text-8xl lg:text-9xl">
+              Wujudkan Potensi <br />
+              <span className="text-primary">Generasi Z</span>
+            </h1>
+
+            {/* Deskripsi Natural (Copywriting Baru) */}
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-muted lg:text-xl">
+              Z UP hadir buat kamu yang ingin bangun karier dari nol. Kami bantu kenali minatmu,
+              asah skill lewat pelatihan yang pas, bikin CV otomatis yang tembus HRD, sampai
+              ngehubungin kamu langsung ke lowongan kerja atau proyek UMKM terdekat.
+            </p>
+
+            {/* Tombol CTA yang langsung diarahkan ke halaman Login */}
+            <div className="mt-8">
+              <Link to="/login">
+                <Button
+                  size="lg"
+                  className="bg-primary text-foreground hover:bg-primary/90 px-8 py-6 text-lg group"
+                >
+                  Mulai Sekarang
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Statistik Bawah */}
+            <div className="mt-10 flex gap-10 border-t-2 border-ink-muted/50 pt-8">
+              <div>
+                <div className="flex items-center gap-2 text-ink-muted mb-1">
+                  <Users className="w-4 h-4" />
+                  <span className="text-sm font-medium">Talenta Bergabung</span>
+                </div>
+                <p className="text-3xl font-bold text-primary">2.450+</p>
               </div>
-              <p className="text-3xl font-bold text-accent">78%</p>
+              <div>
+                <div className="flex items-center gap-2 text-ink-muted mb-1">
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="text-sm font-medium">Tingkat Penempatan</span>
+                </div>
+                <p className="text-3xl font-bold text-accent">78%</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Konten Kanan (Keyboard interaktif) */}
-        <div className="w-full lg:w-1/2 mt-12 lg:mt-0 flex justify-center lg:justify-end z-10">
-          <div
-            className="relative w-full max-w-2xl overflow-hidden bg-black transform lg:rotate-2 hover:rotate-0 transition-transform duration-500 cursor-pointer"
-            onMouseMove={handleKeyboardHover}
-            onMouseLeave={() => setKeyboardDirection("normal")}
-            onClick={handleKeyboardClick}
-            aria-label="Keyboard navigasi interaktif"
-            role="button"
-            tabIndex={0}
-          >
-            <img
-              src={keyboardImages[keyboardDirection]}
-              alt={`Keyboard Z UP arah ${keyboardDirection}`}
-              className="w-full h-auto object-contain transition-opacity duration-150"
-            />
+          {/* Konten Kanan (Keyboard interaktif) */}
+          <div className="w-full lg:w-[48%]">
+            <div
+              className="relative mx-auto w-full max-w-2xl cursor-pointer transition-transform duration-500 hover:scale-[1.02]"
+              onMouseMove={handleKeyboardHover}
+              onMouseLeave={() => setKeyboardDirection("normal")}
+              onClick={handleKeyboardClick}
+              aria-label="Keyboard navigasi interaktif"
+              role="button"
+              tabIndex={0}
+            >
+              <img
+                src={keyboardImages[keyboardDirection]}
+                alt={`Keyboard Z UP arah ${keyboardDirection}`}
+                className="h-auto w-full object-contain transition-opacity duration-150"
+              />
+            </div>
           </div>
         </div>
       </main>
@@ -152,7 +148,7 @@ export default function LandingPage() {
           <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-primary">
             Tentang Z UP
           </p>
-          <h2 className="max-w-3xl text-4xl font-extrabold text-foreground lg:text-6xl">
+          <h2 className="max-w-3xl font-heading text-4xl font-extrabold text-foreground lg:text-6xl">
             Mulai dari potensi, tumbuh jadi prestasi.
           </h2>
           <p className="mt-6 max-w-3xl text-lg leading-relaxed text-muted-foreground">
@@ -168,27 +164,27 @@ export default function LandingPage() {
           <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-primary">
             News & Update
           </p>
-          <h2 className="max-w-3xl text-4xl font-extrabold lg:text-6xl">
+          <h2 className="max-w-3xl font-heading text-4xl font-extrabold lg:text-6xl">
             Cerita dan peluang terbaru dari Z UP.
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
-              <p className="text-sm font-bold text-primary">Segera Hadir</p>
-              <h3 className="mt-3 text-2xl font-bold">Program pengembangan skill</h3>
+              <p className="font-mono text-sm font-bold text-primary">Segera Hadir</p>
+              <h3 className="mt-3 font-heading text-2xl font-bold">Program pengembangan skill</h3>
               <p className="mt-3 text-ink-muted">
                 Nantikan kabar terbaru tentang pelatihan dan aktivitas pengembangan karier.
               </p>
             </article>
             <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
-              <p className="text-sm font-bold text-accent">Peluang</p>
-              <h3 className="mt-3 text-2xl font-bold">Temukan langkah kariermu</h3>
+              <p className="font-mono text-sm font-bold text-accent">Peluang</p>
+              <h3 className="mt-3 font-heading text-2xl font-bold">Temukan langkah kariermu</h3>
               <p className="mt-3 text-ink-muted">
                 Dapatkan informasi peluang kerja dan proyek yang relevan dengan potensimu.
               </p>
             </article>
             <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
-              <p className="text-sm font-bold text-primary">Komunitas</p>
-              <h3 className="mt-3 text-2xl font-bold">Bertumbuh bersama</h3>
+              <p className="font-mono text-sm font-bold text-primary">Komunitas</p>
+              <h3 className="mt-3 font-heading text-2xl font-bold">Bertumbuh bersama</h3>
               <p className="mt-3 text-ink-muted">
                 Ikuti cerita inspiratif dan insight dari talenta muda Indonesia.
               </p>
@@ -196,6 +192,31 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <footer className="border-t-2 border-foreground bg-primary px-8 py-10 text-foreground lg:px-16">
+        <div className="mx-auto flex max-w-6xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <img src="/logo.png" alt="Z UP Logo" className="h-14 w-auto object-contain" />
+            <p className="mt-4 max-w-sm text-sm leading-relaxed">
+              Temukan potensi, bangun skill, dan melangkah lebih siap bersama Z UP.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-3 font-mono text-xs font-semibold uppercase">
+            <Link className="underline underline-offset-4 hover:no-underline" to="/login">
+              Masuk
+            </Link>
+            <a className="underline underline-offset-4 hover:no-underline" href="#about">
+              Tentang
+            </a>
+            <a className="underline underline-offset-4 hover:no-underline" href="#news">
+              Update
+            </a>
+          </div>
+        </div>
+        <div className="mx-auto mt-8 max-w-6xl border-t-2 border-foreground/30 pt-4 font-mono text-xs">
+          © 2026 Z UP. Tumbuh bersama generasi baru.
+        </div>
+      </footer>
     </div>
   );
 }
