@@ -1,7 +1,20 @@
 import { Link } from "@tanstack/react-router";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Users, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import {
+  ArrowRight,
+  Brush,
+  CheckCircle2,
+  Download,
+  Eraser,
+  Palette,
+  Pencil,
+  Redo2,
+  Trash2,
+  Undo2,
+  Users,
+  TrendingUp,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import downArrowImage from "../assets/down_arrow.png";
 import leftArrowImage from "../assets/left_arrow.png";
@@ -19,6 +32,344 @@ const keyboardImages = {
   right: rightArrowImage,
   up: upArrowImage,
 };
+
+const paintColors = [
+  "#000000",
+  "#808080",
+  "#800000",
+  "#808000",
+  "#008000",
+  "#008080",
+  "#000080",
+  "#800080",
+  "#804000",
+  "#0080ff",
+  "#8000ff",
+  "#ffffff",
+  "#c0c0c0",
+  "#ff0000",
+  "#ffff00",
+  "#00ff00",
+  "#00ffff",
+  "#0000ff",
+  "#ff00ff",
+  "#ff8040",
+];
+
+const paintPresets = {
+  logo: { label: "Penjelasan Logo", image: "/logo_explain.png" },
+  mascot: { label: "Penjelasan Maskot", image: "/mascot_explain.png" },
+  blank: { label: "Canvas Polos", image: null },
+};
+
+function PaintStudio() {
+  const canvasRef = useRef(null);
+  const historyRef = useRef([]);
+  const historyStepRef = useRef(-1);
+  const drawingRef = useRef(false);
+  const toolRef = useRef("pencil");
+  const colorRef = useRef("#000000");
+  const sizeRef = useRef(2);
+  const [activePreset, setActivePreset] = useState("logo");
+  const [activeTool, setActiveTool] = useState("pencil");
+  const [color, setColor] = useState("#000000");
+  const [size, setSize] = useState(2);
+  const [coordinates, setCoordinates] = useState("");
+
+  const saveState = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const history = historyRef.current.slice(0, historyStepRef.current + 1);
+    history.push(
+      canvas
+        .getContext("2d", { willReadFrequently: true })
+        .getImageData(0, 0, canvas.width, canvas.height),
+    );
+    historyRef.current = history;
+    historyStepRef.current = history.length - 1;
+  }, []);
+
+  const resetHistory = useCallback(() => {
+    historyRef.current = [];
+    historyStepRef.current = -1;
+    saveState();
+  }, [saveState]);
+
+  const paintPreset = useCallback(
+    (presetKey) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      const preset = paintPresets[presetKey];
+      if (preset.image) {
+        const image = new Image();
+        image.onload = () => {
+          const scale = Math.min(canvas.width / image.width, canvas.height / image.height);
+          const width = image.width * scale;
+          const height = image.height * scale;
+          context.drawImage(
+            image,
+            (canvas.width - width) / 2,
+            (canvas.height - height) / 2,
+            width,
+            height,
+          );
+          resetHistory();
+        };
+        image.onerror = () => {
+          resetHistory();
+        };
+        image.src = preset.image;
+      } else {
+        resetHistory();
+      }
+      setActivePreset(presetKey);
+    },
+    [resetHistory],
+  );
+
+  useEffect(() => {
+    paintPreset("logo");
+  }, [paintPreset]);
+
+  const setPaintTool = (tool) => {
+    toolRef.current = tool;
+    setActiveTool(tool);
+    const nextSize = tool === "pencil" ? 2 : tool === "brush" ? 8 : 18;
+    sizeRef.current = nextSize;
+    setSize(nextSize);
+  };
+
+  const setPaintColor = (nextColor) => {
+    colorRef.current = nextColor;
+    setColor(nextColor);
+  };
+
+  const getCanvasPoint = (event) => {
+    const canvas = canvasRef.current;
+    const bounds = canvas.getBoundingClientRect();
+    return {
+      x: ((event.clientX - bounds.left) * canvas.width) / bounds.width,
+      y: ((event.clientY - bounds.top) * canvas.height) / bounds.height,
+    };
+  };
+
+  const draw = (event) => {
+    if (!drawingRef.current) return;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    const point = getCanvasPoint(event);
+    context.lineWidth = sizeRef.current;
+    context.lineCap = toolRef.current === "brush" ? "round" : "square";
+    context.lineJoin = toolRef.current === "brush" ? "round" : "miter";
+    context.strokeStyle = toolRef.current === "eraser" ? "#ffffff" : colorRef.current;
+    context.lineTo(point.x, point.y);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(point.x, point.y);
+    setCoordinates(`${Math.floor(point.x)}, ${Math.floor(point.y)}`);
+  };
+
+  const startDrawing = (event) => {
+    drawingRef.current = true;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const context = canvasRef.current.getContext("2d", { willReadFrequently: true });
+    const point = getCanvasPoint(event);
+    context.beginPath();
+    context.moveTo(point.x, point.y);
+    draw(event);
+  };
+
+  const stopDrawing = (event) => {
+    if (!drawingRef.current) return;
+    drawingRef.current = false;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    canvasRef.current.getContext("2d", { willReadFrequently: true }).beginPath();
+    saveState();
+  };
+
+  const restoreState = (step) => {
+    const canvas = canvasRef.current;
+    const state = historyRef.current[step];
+    if (!canvas || !state) return;
+    canvas.getContext("2d", { willReadFrequently: true }).putImageData(state, 0, 0);
+    historyStepRef.current = step;
+  };
+
+  const undo = () => {
+    if (historyStepRef.current > 0) restoreState(historyStepRef.current - 1);
+  };
+
+  const redo = () => {
+    if (historyStepRef.current < historyRef.current.length - 1) {
+      restoreState(historyStepRef.current + 1);
+    }
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    saveState();
+  };
+
+  const downloadCanvas = () => {
+    const link = document.createElement("a");
+    link.download = "z-up-canvas.png";
+    link.href = canvasRef.current.toDataURL("image/png");
+    link.click();
+  };
+
+  return (
+    <div className="paint-studio">
+      <div className="paint-presets" aria-label="Pilih isi canvas">
+        {Object.entries(paintPresets).map(([key, preset]) => (
+          <button
+            key={key}
+            type="button"
+            className={`paint-preset ${activePreset === key ? "active" : ""}`}
+            onClick={() => paintPreset(key)}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="paint-window">
+        <div className="paint-titlebar">
+          <span className="flex items-center gap-2">
+            <Palette size={14} />
+            untitled - Z UP Paint
+          </span>
+          <span className="paint-window-controls" aria-hidden="true">
+            _ □ ×
+          </span>
+        </div>
+        <div className="paint-menu" aria-hidden="true">
+          <span>File</span>
+          <span>Edit</span>
+          <span>View</span>
+          <span>Image</span>
+          <span>Colors</span>
+          <span>Help</span>
+        </div>
+
+        <div className="paint-workspace">
+          <aside className="paint-toolbar" aria-label="Alat menggambar">
+            <button
+              type="button"
+              className={`paint-tool ${activeTool === "pencil" ? "active" : ""}`}
+              onClick={() => setPaintTool("pencil")}
+              title="Pensil"
+              aria-label="Pensil"
+            >
+              <Pencil size={15} />
+            </button>
+            <button
+              type="button"
+              className={`paint-tool ${activeTool === "brush" ? "active" : ""}`}
+              onClick={() => setPaintTool("brush")}
+              title="Kuas"
+              aria-label="Kuas"
+            >
+              <Brush size={15} />
+            </button>
+            <button
+              type="button"
+              className={`paint-tool ${activeTool === "eraser" ? "active" : ""}`}
+              onClick={() => setPaintTool("eraser")}
+              title="Penghapus"
+              aria-label="Penghapus"
+            >
+              <Eraser size={15} />
+            </button>
+            <div className="paint-size-options" aria-label="Ukuran garis">
+              {[2, 5, 10, 18].map((lineSize) => (
+                <button
+                  type="button"
+                  key={lineSize}
+                  className={size === lineSize ? "active" : ""}
+                  onClick={() => {
+                    sizeRef.current = lineSize;
+                    setSize(lineSize);
+                  }}
+                  aria-label={`Ukuran garis ${lineSize}`}
+                >
+                  <span style={{ height: `${lineSize}px` }} />
+                </button>
+              ))}
+            </div>
+          </aside>
+          <div className="paint-canvas-wrapper">
+            <canvas
+              ref={canvasRef}
+              width="900"
+              height="560"
+              className="paint-canvas"
+              onPointerDown={startDrawing}
+              onPointerMove={draw}
+              onPointerUp={stopDrawing}
+              onPointerCancel={stopDrawing}
+              onPointerLeave={() => setCoordinates("")}
+              aria-label="Canvas Z UP Paint yang dapat digambar"
+            />
+          </div>
+        </div>
+
+        <div className="paint-palette">
+          <div className="paint-selected-colors" aria-label="Warna aktif">
+            <span style={{ backgroundColor: color }} />
+            <span />
+          </div>
+          <div className="paint-color-grid">
+            {paintColors.map((paintColor) => (
+              <button
+                type="button"
+                key={paintColor}
+                className="paint-color"
+                style={{ backgroundColor: paintColor }}
+                onClick={() => setPaintColor(paintColor)}
+                aria-label={`Pilih warna ${paintColor}`}
+              />
+            ))}
+          </div>
+          <div className="paint-actions">
+            <button type="button" className="paint-action" onClick={undo} title="Urungkan">
+              <Undo2 size={14} />
+            </button>
+            <button type="button" className="paint-action" onClick={redo} title="Ulangi">
+              <Redo2 size={14} />
+            </button>
+            <button
+              type="button"
+              className="paint-action"
+              onClick={clearCanvas}
+              title="Kosongkan canvas"
+            >
+              <Trash2 size={14} />
+            </button>
+            <button type="button" className="paint-save" onClick={downloadCanvas}>
+              <Download size={14} />
+              Simpan PNG
+            </button>
+          </div>
+        </div>
+        <div className="paint-status">
+          <span>Untuk berkreasi, pilih alat lalu gambar di canvas.</span>
+          <span>{coordinates}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function LandingPage() {
   const [keyboardDirection, setKeyboardDirection] = useState("normal");
@@ -156,6 +507,7 @@ export default function LandingPage() {
             menemukan langkah karier yang sesuai. Semua dirancang agar perjalananmu dari belajar
             sampai siap kerja terasa lebih jelas dan terarah.
           </p>
+          <PaintStudio />
         </div>
       </section>
 

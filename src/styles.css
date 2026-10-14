@@ -207,6 +207,287 @@
   }
 }
 
+.paint-studio {
+  margin-top: 2.5rem;
+  overflow: hidden;
+  border: 2px solid var(--black);
+  background: #008080;
+  padding: 1rem;
+  box-shadow: 8px 8px 0 var(--black);
+}
+
+.paint-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.paint-preset,
+.paint-action,
+.paint-save,
+.paint-tool,
+.paint-size-options button {
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  border-radius: 0;
+  background: #c0c0c0;
+  color: #000;
+  font-family: Tahoma, "MS Sans Serif", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow:
+    inset 1px 1px #dfdfdf,
+    inset -1px -1px #808080;
+}
+
+.paint-preset {
+  padding: 0.45rem 0.7rem;
+}
+
+.paint-preset:hover,
+.paint-action:hover,
+.paint-save:hover,
+.paint-tool:hover,
+.paint-size-options button:hover {
+  background: #d8d8d8;
+}
+
+.paint-preset.active,
+.paint-tool.active,
+.paint-size-options button.active,
+.paint-action:active,
+.paint-save:active {
+  border-color: #000 #fff #fff #000;
+  box-shadow:
+    inset 1px 1px #808080,
+    inset -1px -1px #dfdfdf;
+  background: #fff;
+}
+
+.paint-window {
+  overflow: hidden;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  background: #c0c0c0;
+  box-shadow:
+    inset 1px 1px #dfdfdf,
+    inset -1px -1px #808080;
+  font-family: Tahoma, "MS Sans Serif", sans-serif;
+}
+
+.paint-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.45rem;
+}
+
+.paint-window-controls {
+  letter-spacing: 0.15rem;
+}
+
+.paint-menu {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid #808080;
+  padding: 0.3rem 0.6rem;
+  color: #000;
+  font-size: 0.75rem;
+}
+
+.paint-workspace {
+  display: flex;
+  min-height: 24rem;
+  padding: 0.3rem;
+}
+
+.paint-toolbar {
+  display: flex;
+  width: 4rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.2rem;
+  padding: 0.25rem;
+}
+
+.paint-tool {
+  display: grid;
+  width: 1.6rem;
+  height: 1.6rem;
+  place-items: center;
+  padding: 0;
+}
+
+.paint-size-options {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.4rem;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 0.25rem;
+}
+
+.paint-size-options button {
+  display: grid;
+  height: 1.25rem;
+  place-items: center;
+  padding: 0 0.2rem;
+}
+
+.paint-size-options button span {
+  display: block;
+  width: 1.25rem;
+  background: #000;
+}
+
+.paint-canvas-wrapper {
+  min-width: 0;
+  flex: 1;
+  overflow: auto;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 0.35rem;
+  background: #808080;
+}
+
+.paint-canvas {
+  display: block;
+  width: 100%;
+  min-width: 34rem;
+  height: auto;
+  background: #fff;
+  cursor: crosshair;
+  touch-action: none;
+  box-shadow: 2px 2px 5px rgb(0 0 0 / 50%);
+}
+
+.paint-palette {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 2px solid #808080;
+  padding: 0.45rem;
+}
+
+.paint-selected-colors {
+  position: relative;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex-shrink: 0;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  background: #fff;
+}
+
+.paint-selected-colors span {
+  position: absolute;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid;
+  border-color: #808080 #000 #000 #808080;
+}
+
+.paint-selected-colors span:first-child {
+  top: 0.15rem;
+  left: 0.15rem;
+  z-index: 1;
+}
+
+.paint-selected-colors span:last-child {
+  right: 0.15rem;
+  bottom: 0.15rem;
+  background: #fff;
+}
+
+.paint-color-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1.1rem);
+  gap: 2px;
+}
+
+.paint-color {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid;
+  border-color: #fff #808080 #808080 #fff;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.paint-color:focus-visible,
+.paint-preset:focus-visible,
+.paint-action:focus-visible,
+.paint-save:focus-visible,
+.paint-tool:focus-visible,
+.paint-size-options button:focus-visible {
+  outline: 2px dotted #000080;
+  outline-offset: 2px;
+}
+
+.paint-actions {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.paint-action,
+.paint-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 2rem;
+  min-height: 1.8rem;
+  padding: 0.25rem 0.45rem;
+}
+
+.paint-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid #808080;
+  padding: 0.25rem 0.5rem;
+  color: #555;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 640px) {
+  .paint-studio {
+    padding: 0.6rem;
+  }
+
+  .paint-workspace {
+    min-height: 18rem;
+  }
+
+  .paint-palette {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .paint-actions {
+    width: 100%;
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
+
+  .paint-status {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+}
+
 /* Ekspor PDF: hanya dokumen CV yang tercetak, sisanya disembunyikan. */
 @media print {
   @page {
