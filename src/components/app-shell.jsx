@@ -91,7 +91,7 @@ export function AppShell({ title, subtitle, children }) {
           <Button
             asChild
             variant="outline"
-            className="w-full justify-start gap-3 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            className="w-full justify-start gap-3 rounded-xl text-raven hover:text-foreground hover:bg-muted"
           >
             <Link to="/" onClick={() => setOpen(false)}>
               <LogOut className="size-4 shrink-0" />
@@ -127,7 +127,13 @@ export function AppShell({ title, subtitle, children }) {
                 <Menu className="size-4" />
               </button>
               <div className="min-w-0">
-                <h1 className="truncate text-base font-bold tracking-tight sm:text-lg">{title}</h1>
+                <h1
+                  className={`truncate text-base font-bold sm:text-lg ${
+                    pathname === "/dashboard" ? "tracking-[0.025em]" : "tracking-tight"
+                  }`}
+                >
+                  {title}
+                </h1>
                 {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}
               </div>
             </div>
@@ -155,8 +161,8 @@ export function AppShell({ title, subtitle, children }) {
                     .toUpperCase()}
                 </span>
                 <div className="hidden min-w-0 leading-tight sm:block">
-                  <p className="truncate text-sm font-semibold text-slate-900">{profile.name}</p>
-                  <p className="truncate text-xs text-slate-500">
+                  <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">
                     {profile.city || "Lengkapi profil"}
                   </p>
                 </div>
@@ -165,7 +171,7 @@ export function AppShell({ title, subtitle, children }) {
                 asChild
                 variant="ghost"
                 size="icon"
-                className="rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50"
+                className="rounded-xl text-muted-foreground hover:text-raven hover:bg-muted"
                 aria-label="Keluar"
                 title="Keluar"
               >

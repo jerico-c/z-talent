@@ -85,7 +85,9 @@ function Dashboard() {
           {/* Radar: keterampilanmu vs kebutuhan industri */}
           <Card className="border-border shadow-soft">
             <CardHeader>
-              <CardTitle className="text-base">Keterampilanmu vs kebutuhan industri</CardTitle>
+              <CardTitle className="text-base tracking-[0.025em]">
+                Keterampilanmu vs kebutuhan industri
+              </CardTitle>
             </CardHeader>
             <CardContent className="h-80">
               <ResponsiveContainer width="100%" height="100%">
@@ -119,7 +121,7 @@ function Dashboard() {
           {/* Kursus berjalan */}
           <Card className="border-border shadow-soft">
             <CardHeader>
-              <CardTitle className="text-base">Lanjutkan belajar</CardTitle>
+              <CardTitle className="text-base tracking-[0.025em]">Lanjutkan belajar</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               {enrollments.map((c) => (
@@ -144,7 +146,9 @@ function Dashboard() {
         {/* Lowongan rekomendasi (data langsung dari API lowongan) */}
         <Card className="border-border shadow-soft">
           <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-            <CardTitle className="text-base">Lowongan yang cocok untukmu</CardTitle>
+            <CardTitle className="text-base tracking-[0.025em]">
+              Lowongan yang cocok untukmu
+            </CardTitle>
             <Button asChild size="sm" variant="ghost" className="rounded-xl text-primary">
               <Link to="/siap-kerja">Lihat semua</Link>
             </Button>

@@ -139,7 +139,7 @@ function CoursesPage() {
               <Card key={cert.title} className="card-interactive border-border bg-card shadow-soft">
                 <CardContent className="p-5">
                   <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-                    <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-brand text-primary-foreground">
+                    <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground">
                       <BadgeCheck className="size-5" />
                     </span>
                     <div className="min-w-0">

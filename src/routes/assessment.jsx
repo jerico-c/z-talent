@@ -64,12 +64,14 @@ function AssessmentPage() {
       <div className="mx-auto grid max-w-5xl gap-6">
         {page === -1 && !result && (
           <Card className="overflow-hidden">
-            <div className="bg-hero p-7 text-white sm:p-10">
-              <Badge className="border-white/30 bg-white/15 text-white">ASESMEN KARIER</Badge>
+            <div className="bg-ink p-7 text-ink-foreground sm:p-10">
+              <Badge className="border-white/30 bg-card/15 text-ink-foreground">
+                ASESMEN KARIER
+              </Badge>
               <h2 className="mt-4 max-w-2xl text-3xl font-black sm:text-5xl">
                 Kenali arah minat dan bakatmu.
               </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80">
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-foreground/80">
                 Jawab 18 pernyataan minat dan 6 pilihan prioritas. Sistem akan menghitung Holland
                 Code RIASEC untuk memberikan rekomendasi karier, studi, dan kartu identitas yang
                 bisa kamu bagikan.
@@ -271,14 +273,14 @@ function ResultView({ result, name, canvasRef, onReset }) {
   return (
     <div className="grid gap-6">
       <Card className="overflow-hidden">
-        <div className="bg-hero p-6 text-white sm:p-8">
+        <div className="bg-ink p-6 text-ink-foreground sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
                 Holland Code
               </p>
               <h2 className="mt-2 text-4xl font-black tracking-wider">{result.hollandCode}</h2>
-              <p className="mt-2 text-sm text-white/80">{top.description}</p>
+              <p className="mt-2 text-sm text-ink-foreground/80">{top.description}</p>
             </div>
             <Button variant="secondary" onClick={onReset}>
               <RotateCcw /> Ulangi tes
@@ -355,10 +357,10 @@ async function renderCard(code, name, canvas) {
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
   const cardFontSize = 44;
-  await document.fonts.load(`${cardFontSize}px "Anonymous Pro"`);
+  await document.fonts.load(`${cardFontSize}px "JetBrains Mono"`);
   context.fillStyle = "#0f0f0f";
   context.textAlign = "left";
   context.textBaseline = "alphabetic";
-  context.font = `${cardFontSize}px "Anonymous Pro", monospace`;
+  context.font = `${cardFontSize}px "JetBrains Mono", monospace`;
   context.fillText((name.trim() || "PESERTA ASESMEN").toUpperCase(), 632, 211);
 }

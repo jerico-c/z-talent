@@ -75,10 +75,10 @@ export default function LoginPage() {
               className="h-12 w-auto mb-6 hover:opacity-80 transition-opacity"
             />
           </Link>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-foreground">
             {isLogin ? "Selamat Datang Kembali!" : "Mulai Perjalananmu"}
           </h1>
-          <p className="text-slate-500 text-sm mt-2 text-center">
+          <p className="text-muted-foreground text-sm mt-2 text-center">
             {isLogin
               ? "Masuk untuk melanjutkan pengembangan kariermu."
               : "Daftar sekarang dan wujudkan potensi emasmu bersama Z UP."}
@@ -88,13 +88,13 @@ export default function LoginPage() {
         {/* Form Login/Register */}
         <form onSubmit={handleEmailAuth} className="space-y-5">
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg">
+            <div className="p-3 text-sm text-raven bg-muted border border-foreground rounded-lg">
               {error}
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-slate-700">
+            <Label htmlFor="email" className="text-foreground">
               Email
             </Label>
             <Input
@@ -104,12 +104,12 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="focus-visible:ring-orange-500"
+              className="focus-visible:ring-primary"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-slate-700">
+            <Label htmlFor="password" className="text-foreground">
               Password
             </Label>
             <Input
@@ -119,21 +119,21 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="focus-visible:ring-orange-500"
+              className="focus-visible:ring-primary"
             />
           </div>
 
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-6 text-md font-semibold transition-all"
+            className="w-full bg-ink hover:bg-raven text-ink-foreground rounded-xl py-6 text-md font-semibold transition-all"
           >
             {loading ? "Memproses..." : isLogin ? "Masuk" : "Daftar Akun"}
           </Button>
         </form>
 
-        <div className="my-6 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-slate-200 after:mt-0.5 after:flex-1 after:border-t after:border-slate-200">
-          <p className="mx-4 mb-0 text-center text-sm text-slate-500 font-medium">Atau</p>
+        <div className="my-6 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-foreground after:mt-0.5 after:flex-1 after:border-t after:border-foreground">
+          <p className="mx-4 mb-0 text-center text-sm text-muted-foreground font-medium">Atau</p>
         </div>
 
         {/* Tombol Google */}
@@ -142,7 +142,7 @@ export default function LoginPage() {
           variant="outline"
           onClick={handleGoogleAuth}
           disabled={loading}
-          className="w-full rounded-xl py-6 border-slate-200 text-slate-700 hover:bg-slate-50 font-medium flex items-center justify-center gap-3"
+          className="w-full rounded-xl py-6 border-foreground text-foreground hover:bg-background font-medium flex items-center justify-center gap-3"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -166,12 +166,12 @@ export default function LoginPage() {
         </Button>
 
         {/* Toggle Login/Register */}
-        <p className="mt-8 text-center text-sm text-slate-600">
+        <p className="mt-8 text-center text-sm text-raven">
           {isLogin ? "Belum punya akun? " : "Sudah punya akun? "}
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="font-bold text-orange-500 hover:text-orange-600 hover:underline"
+            className="font-bold text-primary hover:text-foreground hover:underline"
           >
             {isLogin ? "Daftar di sini" : "Masuk di sini"}
           </button>

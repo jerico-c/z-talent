@@ -170,7 +170,7 @@ function CvPage() {
             </CardContent>
           </Card>
 
-          <div className="rounded-3xl border border-border bg-secondary/50 p-3 print:border-0 print:bg-white print:p-0">
+          <div className="rounded-3xl border border-border bg-secondary/50 p-3 print:border-0 print:bg-card print:p-0">
             <p className="mb-2 px-1 text-xs font-semibold text-muted-foreground print:hidden">
               Pratinjau langsung · {template.name}
             </p>

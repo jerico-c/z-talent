@@ -107,10 +107,10 @@ function AdminPage() {
   return (
     <AppShell title="Admin" subtitle="Kelola konten pembelajaran Z UP">
       <div className="grid gap-6">
-        <section className="rounded-3xl bg-slate-900 p-6 text-white shadow-soft sm:p-8">
-          <Badge className="bg-orange-400 text-slate-950">Administrator</Badge>
+        <section className="rounded-3xl bg-ink p-6 text-ink-foreground shadow-soft sm:p-8">
+          <Badge className="bg-primary text-foreground">Administrator</Badge>
           <h2 className="mt-4 text-2xl font-bold">Panel pengelolaan konten</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
             Tambahkan kursus dan pelatihan yang akan tampil untuk pengguna. Setiap perubahan
             divalidasi kembali oleh aturan Firestore berbasis custom claim admin.
           </p>

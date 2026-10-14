@@ -23,7 +23,7 @@ function Bullets({ text }) {
     .filter(Boolean);
   if (lines.length === 0) return null;
   return (
-    <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[10.5px] leading-relaxed text-slate-700">
+    <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[10.5px] leading-relaxed text-foreground">
       {lines.map((l, i) => (
         <li key={i}>{l}</li>
       ))}
@@ -36,7 +36,7 @@ function Chips({ items, accent }) {
       {items.map((s) => (
         <span
           key={s}
-          className="rounded border px-1.5 py-0.5 text-[9.5px] font-medium text-slate-700"
+          className="rounded border px-1.5 py-0.5 text-[9.5px] font-medium text-foreground"
           style={{ borderColor: `${accent}55`, background: `${accent}0f` }}
         >
           {s}
@@ -59,7 +59,7 @@ export function CvPreview({ cv, template, accent }) {
         Pengalaman
       </Heading>
       {experience.length === 0 && (
-        <p className="mt-1 text-[10.5px] text-slate-400">Belum ada pengalaman.</p>
+        <p className="mt-1 text-[10.5px] text-cement">Belum ada pengalaman.</p>
       )}
       <div
         className={t.layout === "timeline" ? "mt-2 space-y-3 border-l pl-3" : "mt-2 space-y-3"}
@@ -74,8 +74,8 @@ export function CvPreview({ cv, template, accent }) {
               />
             )}
             <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-              <p className="text-[11.5px] font-bold text-slate-900">{e.title || "Posisi"}</p>
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[11.5px] font-bold text-foreground">{e.title || "Posisi"}</p>
+              <p className="text-[10px] text-muted-foreground">
                 {formatMonth(e.startDate, "—")} – {formatMonth(e.endDate)}
               </p>
             </div>
@@ -97,17 +97,17 @@ export function CvPreview({ cv, template, accent }) {
         {education.map((e) => (
           <div key={e.id}>
             <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-              <p className="text-[11px] font-bold text-slate-900">{e.degree || "Program studi"}</p>
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[11px] font-bold text-foreground">{e.degree || "Program studi"}</p>
+              <p className="text-[10px] text-muted-foreground">
                 {formatMonth(e.startDate, "—")} – {formatMonth(e.endDate, "Sekarang")}
               </p>
             </div>
-            <p className="text-[10.5px] text-slate-600">{e.school}</p>
-            {e.description && <p className="text-[10px] text-slate-600">{e.description}</p>}
+            <p className="text-[10.5px] text-raven">{e.school}</p>
+            {e.description && <p className="text-[10px] text-raven">{e.description}</p>}
           </div>
         ))}
         {education.length === 0 && (
-          <p className="text-[10.5px] text-slate-400">Belum ada pendidikan.</p>
+          <p className="text-[10.5px] text-cement">Belum ada pendidikan.</p>
         )}
       </div>
     </section>
@@ -119,10 +119,10 @@ export function CvPreview({ cv, template, accent }) {
       </Heading>
       {skills.technical && <Chips items={splitList(skills.technical)} accent={accent} />}
       {skills.soft && (
-        <p className="mt-1.5 text-[10.5px] text-slate-700">Personal: {skills.soft}</p>
+        <p className="mt-1.5 text-[10.5px] text-foreground">Personal: {skills.soft}</p>
       )}
       {skills.languages && (
-        <p className="text-[10.5px] text-slate-700">Bahasa: {skills.languages}</p>
+        <p className="text-[10.5px] text-foreground">Bahasa: {skills.languages}</p>
       )}
     </section>
   );
@@ -133,7 +133,7 @@ export function CvPreview({ cv, template, accent }) {
           <Heading t={t} accent={accent}>
             Sertifikat & Mikro-kredensial
           </Heading>
-          <p className="mt-1 text-[10.5px] leading-relaxed text-slate-700">
+          <p className="mt-1 text-[10.5px] leading-relaxed text-foreground">
             {additional.certifications}
           </p>
         </>
@@ -143,7 +143,9 @@ export function CvPreview({ cv, template, accent }) {
           <Heading t={t} accent={accent}>
             Proyek
           </Heading>
-          <p className="mt-1 text-[10.5px] leading-relaxed text-slate-700">{additional.projects}</p>
+          <p className="mt-1 text-[10.5px] leading-relaxed text-foreground">
+            {additional.projects}
+          </p>
         </>
       )}
       {additional.awards && (
@@ -151,7 +153,7 @@ export function CvPreview({ cv, template, accent }) {
           <Heading t={t} accent={accent}>
             Penghargaan
           </Heading>
-          <p className="mt-1 text-[10.5px] leading-relaxed text-slate-700">{additional.awards}</p>
+          <p className="mt-1 text-[10.5px] leading-relaxed text-foreground">{additional.awards}</p>
         </>
       )}
       {additional.volunteer && (
@@ -159,7 +161,7 @@ export function CvPreview({ cv, template, accent }) {
           <Heading t={t} accent={accent}>
             Relawan
           </Heading>
-          <p className="mt-1 text-[10.5px] leading-relaxed text-slate-700">
+          <p className="mt-1 text-[10.5px] leading-relaxed text-foreground">
             {additional.volunteer}
           </p>
         </>
@@ -171,7 +173,7 @@ export function CvPreview({ cv, template, accent }) {
       <Heading t={t} accent={accent}>
         Ringkasan Profesional
       </Heading>
-      <p className="mt-1 text-[10.5px] leading-relaxed text-slate-700">{personal.summary}</p>
+      <p className="mt-1 text-[10.5px] leading-relaxed text-foreground">{personal.summary}</p>
     </section>
   ) : null;
   /** Kepala dokumen — bervariasi per tata letak. */
@@ -179,7 +181,7 @@ export function CvPreview({ cv, template, accent }) {
     <header
       className={
         t.layout === "band"
-          ? "-mx-8 -mt-8 mb-4 px-8 py-6 text-white"
+          ? "-mx-8 -mt-8 mb-4 px-8 py-6 text-ink-foreground"
           : t.layout === "compact"
             ? "mb-2"
             : "mb-3 pb-3"
@@ -193,7 +195,7 @@ export function CvPreview({ cv, template, accent }) {
       }
     >
       <h2
-        className={`text-[19px] font-extrabold leading-tight ${t.layout === "band" ? "text-white" : "text-slate-900"}`}
+        className={`text-[19px] font-extrabold leading-tight ${t.layout === "band" ? "text-ink-foreground" : "text-foreground"}`}
       >
         {personal.fullName || "Nama Lengkap"}
       </h2>
@@ -203,7 +205,9 @@ export function CvPreview({ cv, template, accent }) {
       >
         {personal.jobTitle || "Posisi yang dituju"}
       </p>
-      <p className={`mt-1 text-[10px] ${t.layout === "band" ? "text-white/85" : "text-slate-600"}`}>
+      <p
+        className={`mt-1 text-[10px] ${t.layout === "band" ? "text-ink-foreground/85" : "text-raven"}`}
+      >
         {contacts.join(" · ")}
       </p>
     </header>
@@ -211,7 +215,7 @@ export function CvPreview({ cv, template, accent }) {
   return (
     <div
       id="cv-print-area"
-      className="mx-auto w-full max-w-[820px] bg-white p-8 text-slate-900 shadow-lift print:max-w-none print:shadow-none"
+      className="mx-auto w-full max-w-[820px] bg-card p-8 text-foreground shadow-lift print:max-w-none print:shadow-none"
       style={{ fontFamily, aspectRatio: "auto" }}
     >
       {Header}

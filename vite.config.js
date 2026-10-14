@@ -10,26 +10,26 @@ const stripGeneratedRouteTypes = () => ({
   name: "strip-generated-route-types",
   enforce: "pre",
   transform(code, id) {
-    if (!id.endsWith("routeTree.gen.js")) return;
+    if (!id.includes("routeTree.gen.")) return;
     return {
-      code: code.replace(/\nimport type \{ getRouter \}[\s\S]*$/, "\n"),
+      code: code.replace(/\r?\nimport type \{ getRouter \}[\s\S]*$/, "\n"),
       map: null,
     };
   },
   closeBundle() {
     const routeTree = path.resolve(
       path.dirname(fileURLToPath(import.meta.url)),
-      "src/routeTree.gen.js",
+      "src/routeTree.gen.tsx",
     );
     if (!fs.existsSync(routeTree)) return;
     const code = fs.readFileSync(routeTree, "utf8");
-    fs.writeFileSync(routeTree, code.replace(/\nimport type \{ getRouter \}[\s\S]*$/, "\n"));
+    fs.writeFileSync(routeTree, code.replace(/\r?\nimport type \{ getRouter \}[\s\S]*$/, "\n"));
   },
 });
 
 export default defineConfig({
   plugins: [
-    tanstackStart({ router: { disableTypes: true, generatedRouteTree: "./routeTree.gen.js" } }),
+    tanstackStart({ router: { generatedRouteTree: "./routeTree.gen.tsx" } }),
     tailwindcss(),
     react(),
     stripGeneratedRouteTypes(),

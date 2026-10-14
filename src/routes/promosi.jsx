@@ -134,14 +134,14 @@ function PromosiPage() {
       subtitle="Temukan, kenalkan, dan dukung wirausaha muda di komunitas Z UP"
     >
       <div className="grid gap-6">
-        <section className="overflow-hidden rounded-3xl bg-slate-900 text-white shadow-soft">
+        <section className="overflow-hidden rounded-3xl bg-ink text-ink-foreground shadow-soft">
           <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div>
-              <Badge className="bg-orange-400 text-slate-950">Etalase komunitas</Badge>
+              <Badge className="bg-primary text-foreground">Etalase komunitas</Badge>
               <h2 className="mt-4 max-w-2xl text-2xl font-bold tracking-tight sm:text-3xl">
                 Usaha muda, cerita nyata, peluang baru.
               </h2>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-muted">
                 Bagikan produk atau jasamu kepada komunitas Z UP dan bantu usaha lokal saling
                 menemukan pelanggan baru.
               </p>
@@ -149,7 +149,7 @@ function PromosiPage() {
             <Button
               type="button"
               disabled={!canPost}
-              className="w-full rounded-xl bg-orange-500 text-white hover:bg-orange-600 sm:w-fit"
+              className="w-full rounded-xl bg-primary text-ink-foreground hover:bg-primary/90 sm:w-fit"
               onClick={() => setShowForm((current) => !current)}
             >
               <Plus className="size-4" /> {canPost ? "Posting usahamu" : "Masuk untuk posting"}
@@ -158,7 +158,7 @@ function PromosiPage() {
         </section>
 
         {showForm && (
-          <Card className="border-orange-200 shadow-soft">
+          <Card className="border-foreground shadow-soft">
             <CardContent className="p-5 sm:p-6">
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
@@ -268,7 +268,7 @@ function PromosiPage() {
                   </Button>
                   <Button
                     type="submit"
-                    className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+                    className="rounded-xl bg-ink text-ink-foreground hover:bg-raven"
                   >
                     Terbitkan posting
                   </Button>
@@ -296,14 +296,14 @@ function PromosiPage() {
                   className="h-44 w-full object-cover"
                 />
               ) : (
-                <div className="grid h-44 place-items-center bg-orange-50 text-orange-500">
+                <div className="grid h-44 place-items-center bg-primary/10 text-primary">
                   <Store className="size-12 stroke-1" />
                 </div>
               )}
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-bold leading-snug">{promotion.name}</h3>
-                  <Badge variant="secondary" className="shrink-0 bg-orange-100 text-orange-800">
+                  <Badge variant="secondary" className="shrink-0 bg-primary-soft text-foreground">
                     {promotion.category}
                   </Badge>
                 </div>
