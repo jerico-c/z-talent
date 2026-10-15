@@ -85,17 +85,16 @@ Kloning Repositori:
 git clone https://github.com/jerico-c/z-talent.git
 cd z-talent
 
-
 Instalasi Dependensi:
 Aplikasi ini menggunakan bun sebagai package manager utama.
 
 bun install
 
-
 Konfigurasi Environment:
 Buat file .env di root directory dan masukkan kredensial berikut:
 
 # Firebase Auth
+
 VITE_FIREBASE_API_KEY=your_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
 VITE_FIREBASE_PROJECT_ID=your_project_id
@@ -103,7 +102,13 @@ VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_id
 VITE_FIREBASE_APP_ID=your_app_id
 
+# Supabase Storage & content (opsional untuk upload PDF/HTML/gambar)
+
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_publishable_anon_key
+
 # AI & Job API (Server-side)
+
 GROQ_API_KEY=your_groq_api_key
 PARSE_API_KEY=your_parse_api_key
 
@@ -115,7 +120,7 @@ Konfigurasi Admin:
 
 Gunakan akun Firebase Authentication terpisah untuk setiap administrator. Jangan membuat satu akun bersama dan jangan menaruh password admin atau service-account key pada variabel `VITE_*`, karena variabel tersebut masuk ke browser.
 
-Setelah akun admin dibuat di Firebase Authentication, jalankan skrip berikut dari lingkungan server atau komputer pengelola yang aman. Skrip memakai Firebase Admin SDK untuk memberi custom claim `admin: true`:
+Setelah akun admin dibuat di Firebase Authentication, jalankan skrip berikut dari lingkungan server atau komputer pengelola yang aman. Skrip memakai Firebase Admin SDK untuk memberi custom claim `admin: true` dan `role: authenticated` (claim `role` diperlukan agar Firebase JWT dapat memakai PostgreSQL role `authenticated` di Supabase):
 
 ```bash
 $env:FIREBASE_PROJECT_ID="project-id"
@@ -124,13 +129,28 @@ $env:FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KE
 npm run admin:grant -- admin@example.com
 ```
 
+Cara yang lebih aman dan disarankan di Windows adalah mengunduh **service account JSON** dari Firebase Console, simpan di luar repository, lalu jalankan:
+
+```powershell
+$env:FIREBASE_SERVICE_ACCOUNT_PATH="C:\secure\z-talent-firebase-admin.json"
+npm run admin:grant -- admin@example.com
+```
+
+Jangan commit file JSON tersebut ke Git atau memasukkannya ke folder `public`.
+
 Nilai `FIREBASE_*` tersebut hanya boleh berada di environment server/administrator dan tidak boleh di-commit. Setelah claim diberikan, administrator perlu keluar lalu masuk kembali. Menu **Admin** kemudian muncul dan dapat digunakan untuk menambah kursus serta info pelatihan. Aturan Firestore tetap menjadi pengaman utama; menyembunyikan menu saja tidak dianggap sebagai otorisasi.
 
+Pelatihan online/offline:
+
+- Panel **Admin** dapat membuat materi artikel manual (HTML bergaya Medium), PDF, atau file HTML.
+- Pelatihan offline memiliki tanggal mulai/selesai, tempat, alamat, kapasitas, dan link pendaftaran.
+- Untuk menyimpan file materi dan cover ke Supabase Storage, jalankan `supabase/schema.sql` di SQL Editor, isi dua `VITE_SUPABASE_*`, lalu aktifkan Firebase sebagai **Third-party Auth provider** di Supabase. Aplikasi mengirim Firebase ID token dan policy membaca custom claim Firebase `admin: true`. Jika schema lama sudah pernah dijalankan, jalankan `supabase/fix-firebase-auth.sql`. Metadata pelatihan tetap disimpan di Firestore pada koleksi `training`.
+- Skema yang sama sudah menyediakan tabel `news_posts` dan bucket `content-assets` agar gambar news dapat dipakai tanpa migrasi ulang.
+- Jangan menaruh `service_role` key di browser. `VITE_SUPABASE_ANON_KEY` aman untuk client hanya jika RLS pada `supabase/schema.sql` sudah aktif.
 
 Jalankan Server Lokal:
 
 bun run dev
-
 
 Aplikasi dapat diakses melalui http://localhost:5173.
 

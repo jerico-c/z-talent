@@ -1,12 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { BadgeCheck, Clock, Layers, ShieldCheck } from "lucide-react";
+import {
+  BadgeCheck,
+  CalendarDays,
+  Clock,
+  ExternalLink,
+  FileCode2,
+  FileText,
+  Layers,
+  MapPin,
+  ShieldCheck,
+} from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { certificates, courses } from "@/lib/api";
+import { certificates } from "@/lib/api";
 import { completeCourse, useUserProfile } from "@/lib/user-profile";
 import { db } from "@/lib/firebase";
 export const Route = createFileRoute("/courses")({
@@ -59,11 +69,9 @@ function CoursesPage() {
     };
   }, []);
 
-  const availableCourses = [...managedCourses, ...courses].reduce((items, course) => {
-    if (!items.some((item) => item.id === course.id || item.title === course.title))
-      items.push(course);
-    return items;
-  }, []);
+  const availableCourses = managedCourses;
+  const onlineTrainings = trainingInfos.filter((training) => training.deliveryMode !== "offline");
+  const offlineTrainings = trainingInfos.filter((training) => training.deliveryMode === "offline");
 
   const handleComplete = async (course) => {
     setSavingId(course.id);
@@ -84,10 +92,13 @@ function CoursesPage() {
         <section>
           <h2 className="text-lg font-bold tracking-tight">Kursus tersedia</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Selesaikan kursus untuk mengumpulkan poin dan naik level.
+            Kursus dan pelatihan online dari admin untuk mengumpulkan poin dan naik level.
           </p>
           {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
           <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {availableCourses.length === 0 && onlineTrainings.length === 0 && (
+              <EmptyState message="Belum ada kursus atau pelatihan online yang dipublikasikan." />
+            )}
             {availableCourses.map((c) => (
               <Card
                 key={c.title}
@@ -129,8 +140,25 @@ function CoursesPage() {
                 </CardContent>
               </Card>
             ))}
+            {onlineTrainings.map((training) => (
+              <TrainingCard key={training.id} training={training} />
+            ))}
           </div>
         </section>
+
+        {offlineTrainings.length > 0 && (
+          <section>
+            <h2 className="text-lg font-bold tracking-tight">Pelatihan offline</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Jadwal tatap muka dan informasi lokasi dari admin.
+            </p>
+            <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {offlineTrainings.map((training) => (
+                <TrainingCard key={training.id} training={training} />
+              ))}
+            </div>
+          </section>
+        )}
 
         <section>
           <h2 className="text-lg font-bold tracking-tight">Sertifikat saya</h2>
@@ -155,45 +183,161 @@ function CoursesPage() {
             ))}
           </div>
         </section>
-
-        {trainingInfos.length > 0 && (
-          <section>
-            <h2 className="text-lg font-bold tracking-tight">Info pelatihan terbaru</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Kesempatan belajar dari penyelenggara pilihan.
-            </p>
-            <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {trainingInfos.map((training) => (
-                <Card key={training.id} className="border-border shadow-soft">
-                  <CardContent className="space-y-3 p-5">
-                    <Badge variant="secondary">Pelatihan</Badge>
-                    <h3 className="font-bold leading-snug">{training.title}</h3>
-                    <p className="text-xs font-semibold text-primary">{training.provider}</p>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {training.description}
-                    </p>
-                    {training.schedule && (
-                      <p className="text-xs text-muted-foreground">Jadwal: {training.schedule}</p>
-                    )}
-                    {safeExternalUrl(training.link) && (
-                      <a
-                        href={safeExternalUrl(training.link)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm font-semibold text-primary hover:underline"
-                      >
-                        Lihat info pendaftaran
-                      </a>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-        )}
       </div>
     </AppShell>
   );
+}
+
+function TrainingCard({ training }) {
+  const contentUrl = safeExternalUrl(training.contentUrl);
+  const registrationUrl = safeExternalUrl(training.registrationUrl || training.link);
+
+  return (
+    <Card className="card-interactive border-border shadow-soft">
+      <CardContent className="space-y-3 p-5">
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="secondary">
+            {training.deliveryMode === "offline" ? "Tatap muka" : "Online"}
+          </Badge>
+          {training.contentType && (
+            <Badge variant="outline">
+              {training.contentType === "manual" ? "Artikel" : training.contentType.toUpperCase()}
+            </Badge>
+          )}
+        </div>
+        {training.coverImageUrl && (
+          <img
+            src={training.coverImageUrl}
+            alt=""
+            className="h-36 w-full rounded-xl object-cover"
+            loading="lazy"
+          />
+        )}
+        <h3 className="font-bold leading-snug">{training.title}</h3>
+        <p className="text-xs font-semibold text-primary">{training.provider}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">{training.description}</p>
+        {(training.startsAt || training.schedule) && (
+          <p className="flex items-start gap-2 text-xs text-muted-foreground">
+            <CalendarDays className="mt-0.5 size-3.5 shrink-0" />
+            {training.schedule || formatSchedule(training.startsAt, training.endsAt)}
+          </p>
+        )}
+        {training.venue && (
+          <p className="flex items-start gap-2 text-xs text-muted-foreground">
+            <MapPin className="mt-0.5 size-3.5 shrink-0" />
+            <span>
+              {training.venue}
+              {training.address && ` · ${training.address}`}
+            </span>
+          </p>
+        )}
+        {training.capacity && (
+          <p className="text-xs text-muted-foreground">Kapasitas {training.capacity} peserta</p>
+        )}
+        {training.contentType === "manual" && training.contentHtml && (
+          <div className="rounded-xl bg-muted p-3 text-sm leading-relaxed">
+            <div
+              className="training-content line-clamp-4"
+              dangerouslySetInnerHTML={{ __html: sanitizeTrainingHtml(training.contentHtml) }}
+            />
+          </div>
+        )}
+        {training.contentType === "pdf" && contentUrl && (
+          <a
+            href={contentUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+          >
+            <FileText className="size-4" /> Buka materi PDF
+          </a>
+        )}
+        {training.contentType === "html" && contentUrl && (
+          <div className="space-y-2">
+            <HtmlTrainingViewer url={contentUrl} title={training.title} />
+            <a
+              href={contentUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+            >
+              <FileCode2 className="size-4" /> Buka materi HTML penuh
+            </a>
+          </div>
+        )}
+        {registrationUrl && (
+          <a
+            href={registrationUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+          >
+            <ExternalLink className="size-4" /> Daftar pelatihan
+          </a>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function HtmlTrainingViewer({ url, title }) {
+  const [html, setHtml] = useState("");
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    setHtml("");
+    setLoadError("");
+
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.text();
+      })
+      .then((content) => {
+        if (active) setHtml(addBaseUrl(content, url));
+      })
+      .catch((error) => {
+        console.error("Gagal merender materi HTML", error);
+        if (active) setLoadError("Materi tidak dapat dirender di halaman ini.");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [url]);
+
+  return (
+    <div className="overflow-hidden rounded-xl border-2 border-border bg-white">
+      {loadError ? (
+        <p className="p-4 text-sm text-destructive">{loadError}</p>
+      ) : html ? (
+        <iframe
+          srcDoc={html}
+          title={`Materi ${title}`}
+          sandbox="allow-scripts"
+          className="h-72 w-full border-0"
+        />
+      ) : (
+        <p className="p-4 text-sm text-muted-foreground">Memuat materi HTML...</p>
+      )}
+    </div>
+  );
+}
+
+function EmptyState({ message }) {
+  return (
+    <Card className="border-dashed shadow-none sm:col-span-2 xl:col-span-3">
+      <CardContent className="p-6 text-sm text-muted-foreground">{message}</CardContent>
+    </Card>
+  );
+}
+
+function addBaseUrl(html, url) {
+  const base = `<base href="${url.replace(/"/g, "&quot;")}">`;
+  return /<head[\s>]/i.test(html)
+    ? html.replace(/<head[^>]*>/i, (head) => `${head}${base}`)
+    : `<!doctype html><html><head>${base}</head><body>${html}</body></html>`;
 }
 
 function safeExternalUrl(value) {
@@ -204,4 +348,25 @@ function safeExternalUrl(value) {
   } catch {
     return "";
   }
+}
+
+function sanitizeTrainingHtml(value) {
+  return String(value)
+    .replace(/<\/?(script|style|iframe|object|embed|form)[^>]*>/gi, "")
+    .replace(/\s(on[a-z]+|style)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/\s(?:href|src)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (attribute) =>
+      /javascript\s*:/i.test(attribute) ? "" : attribute,
+    );
+}
+
+function formatSchedule(startsAt, endsAt) {
+  const start = new Date(startsAt);
+  if (Number.isNaN(start.getTime())) return startsAt;
+  const formatter = new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+  return endsAt
+    ? `${formatter.format(start)} – ${formatter.format(new Date(endsAt))}`
+    : formatter.format(start);
 }

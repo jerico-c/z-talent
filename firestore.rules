@@ -120,7 +120,9 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create, update: if isAdmin()
         && request.resource.data.keys().hasOnly([
-          'title', 'provider', 'description', 'schedule', 'link', 'createdAt', 'updatedAt'
+          'title', 'provider', 'description', 'schedule', 'link', 'deliveryMode', 'contentType',
+          'contentHtml', 'contentUrl', 'contentFileName', 'coverImageUrl', 'startsAt', 'endsAt',
+          'venue', 'address', 'capacity', 'registrationUrl', 'status', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.title is string
         && request.resource.data.title.size() <= 160
@@ -128,10 +130,29 @@ service cloud.firestore {
         && request.resource.data.provider.size() <= 120
         && request.resource.data.description is string
         && request.resource.data.description.size() <= 2000
-        && request.resource.data.schedule is string
-        && request.resource.data.schedule.size() <= 160
-        && request.resource.data.link is string
-        && request.resource.data.link.size() <= 500;
+        && request.resource.data.deliveryMode is string
+        && request.resource.data.deliveryMode in ['online', 'offline']
+        && request.resource.data.contentType is string
+        && request.resource.data.contentType in ['manual', 'pdf', 'html']
+        && request.resource.data.contentHtml is string
+        && request.resource.data.contentHtml.size() <= 100000
+        && request.resource.data.contentUrl is string
+        && request.resource.data.contentUrl.size() <= 1000
+        && request.resource.data.contentFileName is string
+        && request.resource.data.contentFileName.size() <= 255
+        && request.resource.data.coverImageUrl is string
+        && request.resource.data.coverImageUrl.size() <= 1000
+        && request.resource.data.startsAt is string
+        && request.resource.data.endsAt is string
+        && request.resource.data.venue is string
+        && request.resource.data.venue.size() <= 160
+        && request.resource.data.address is string
+        && request.resource.data.address.size() <= 300
+        && (request.resource.data.capacity == null
+          || (request.resource.data.capacity is number && request.resource.data.capacity >= 0))
+        && request.resource.data.registrationUrl is string
+        && request.resource.data.registrationUrl.size() <= 500
+        && request.resource.data.status in ['draft', 'published', 'archived'];
       allow delete: if isAdmin();
     }
 
