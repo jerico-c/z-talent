@@ -1,24 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import {
-  BadgeCheck,
-  CalendarDays,
-  Clock,
-  ExternalLink,
-  FileCode2,
-  FileText,
-  Layers,
-  MapPin,
-  ShieldCheck,
-} from "lucide-react";
+import { BadgeCheck, CalendarDays, ExternalLink, FileCode2, FileText, MapPin } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { certificates } from "@/lib/api";
 import { completeCourse, useUserProfile } from "@/lib/user-profile";
 import { db } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 export const Route = createFileRoute("/courses")({
   head: () => ({
     meta: [
@@ -52,11 +43,6 @@ function CoursesPage() {
 
   useEffect(() => {
     if (!db) return undefined;
-    const stopCourses = onSnapshot(
-      collection(db, "courses"),
-      (snapshot) => setManagedCourses(snapshot.docs.map((item) => item.data())),
-      (snapshotError) => console.error("Gagal memuat kursus admin", snapshotError),
-    );
     const stopTraining = onSnapshot(
       collection(db, "training"),
       (snapshot) =>
@@ -64,8 +50,45 @@ function CoursesPage() {
       (snapshotError) => console.error("Gagal memuat info pelatihan", snapshotError),
     );
     return () => {
-      stopCourses();
       stopTraining();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+    let active = true;
+    supabase
+      .from("courses")
+      .select(
+        "id,title,provider,description,content_type,content_html,content_url,cover_image_url,status",
+      )
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .then(({ data, error: queryError }) => {
+        if (queryError) {
+          console.error("Gagal memuat kursus Supabase", queryError);
+          return;
+        }
+        if (active) {
+          setManagedCourses(
+            (data || []).map((course) => ({
+              ...course,
+              contentType: course.content_type,
+              contentHtml: course.content_html,
+              contentUrl: course.content_url,
+              coverImageUrl: course.cover_image_url,
+              deliveryMode: "online",
+              level: "Pemula",
+              track: course.provider,
+              hours: "Mandiri",
+              points: 100,
+              verified: false,
+            })),
+          );
+        }
+      });
+    return () => {
+      active = false;
     };
   }, []);
 
@@ -99,49 +122,23 @@ function CoursesPage() {
             {availableCourses.length === 0 && onlineTrainings.length === 0 && (
               <EmptyState message="Belum ada kursus atau pelatihan online yang dipublikasikan." />
             )}
-            {availableCourses.map((c) => (
-              <Card
-                key={c.title}
-                className="card-interactive flex flex-col border-border shadow-soft"
-              >
-                <CardHeader className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge className={levelStyles[c.level]}>{c.level}</Badge>
-                    <Badge variant="outline" className="gap-1">
-                      <Layers className="size-3" /> {c.track}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-base leading-snug">{c.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="mt-auto space-y-4">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="size-3.5" /> {c.hours}
-                    </span>
-                    {c.verified && (
-                      <span className="inline-flex items-center gap-1 font-semibold text-accent">
-                        <ShieldCheck className="size-3.5" /> Sertifikat terverifikasi blockchain
-                      </span>
-                    )}
-                  </div>
-                  {profile.completedCourses.includes(c.id) ? (
-                    <Button disabled variant="secondary" className="w-full rounded-xl">
-                      Kursus selesai · +{c.points} poin
-                    </Button>
-                  ) : (
-                    <Button
-                      className="w-full rounded-xl"
-                      disabled={savingId === c.id}
-                      onClick={() => handleComplete(c)}
-                    >
-                      {savingId === c.id ? "Menyimpan..." : `Selesaikan kursus · +${c.points} poin`}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+            {availableCourses.map((course) => (
+              <TrainingCard
+                key={course.id}
+                training={course}
+                completed={profile.completedCourses.includes(course.id)}
+                busy={savingId === course.id}
+                onComplete={() => handleComplete(course)}
+              />
             ))}
             {onlineTrainings.map((training) => (
-              <TrainingCard key={training.id} training={training} />
+              <TrainingCard
+                key={training.id}
+                training={training}
+                completed={profile.completedCourses.includes(training.id)}
+                busy={savingId === training.id}
+                onComplete={() => handleComplete(training)}
+              />
             ))}
           </div>
         </section>
@@ -154,7 +151,13 @@ function CoursesPage() {
             </p>
             <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {offlineTrainings.map((training) => (
-                <TrainingCard key={training.id} training={training} />
+                <TrainingCard
+                  key={training.id}
+                  training={training}
+                  completed={profile.completedCourses.includes(training.id)}
+                  busy={savingId === training.id}
+                  onComplete={() => handleComplete(training)}
+                />
               ))}
             </div>
           </section>
@@ -188,7 +191,7 @@ function CoursesPage() {
   );
 }
 
-function TrainingCard({ training }) {
+function TrainingCard({ training, completed, busy, onComplete }) {
   const contentUrl = safeExternalUrl(training.contentUrl);
   const registrationUrl = safeExternalUrl(training.registrationUrl || training.link);
 
@@ -255,14 +258,13 @@ function TrainingCard({ training }) {
         {training.contentType === "html" && contentUrl && (
           <div className="space-y-2">
             <HtmlTrainingViewer url={contentUrl} title={training.title} />
-            <a
-              href={contentUrl}
-              target="_blank"
-              rel="noreferrer"
+            <button
+              type="button"
+              onClick={() => openHtmlInNewTab(contentUrl)}
               className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
             >
               <FileCode2 className="size-4" /> Buka materi HTML penuh
-            </a>
+            </button>
           </div>
         )}
         {registrationUrl && (
@@ -274,6 +276,15 @@ function TrainingCard({ training }) {
           >
             <ExternalLink className="size-4" /> Daftar pelatihan
           </a>
+        )}
+        {completed ? (
+          <Button disabled variant="secondary" className="w-full rounded-xl">
+            Selesai · +{training.points || 100} poin
+          </Button>
+        ) : (
+          <Button type="button" className="w-full rounded-xl" disabled={busy} onClick={onComplete}>
+            {busy ? "Menyimpan..." : `Tandai selesai · +${training.points || 100} poin`}
+          </Button>
         )}
       </CardContent>
     </Card>
@@ -338,6 +349,30 @@ function addBaseUrl(html, url) {
   return /<head[\s>]/i.test(html)
     ? html.replace(/<head[^>]*>/i, (head) => `${head}${base}`)
     : `<!doctype html><html><head>${base}</head><body>${html}</body></html>`;
+}
+
+function openHtmlInNewTab(url) {
+  const tab = window.open("", "_blank");
+  if (!tab) {
+    console.error("Browser memblokir tab baru untuk materi HTML");
+    return;
+  }
+  tab.document.write('<p style="font-family: sans-serif">Memuat materi...</p>');
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.text();
+    })
+    .then((html) => {
+      tab.document.open();
+      tab.document.write(addBaseUrl(html, url));
+      tab.document.close();
+    })
+    .catch((error) => {
+      console.error("Gagal membuka materi HTML", error);
+      tab.document.body.innerHTML =
+        '<p style="font-family: sans-serif">Materi HTML tidak dapat dibuka.</p>';
+    });
 }
 
 function safeExternalUrl(value) {

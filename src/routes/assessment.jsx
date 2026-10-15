@@ -356,7 +356,7 @@ async function renderCard(code, name, canvas) {
   if (image.complete && image.naturalWidth)
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-  const cardFontSize = 44;
+  const cardFontSize = 36;
   await document.fonts.load(`${cardFontSize}px "JetBrains Mono"`);
   context.fillStyle = "#0f0f0f";
   context.textAlign = "left";

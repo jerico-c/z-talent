@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp } from "firebase/firestore";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  BookOpen,
   ExternalLink,
   FileCode2,
   FileText,
@@ -10,6 +9,7 @@ import {
   ImagePlus,
   MapPin,
   ShieldCheck,
+  Trash2,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAdminAccess } from "@/lib/admin";
 import { db } from "@/lib/firebase";
-import { uploadTrainingAsset } from "@/lib/training-assets";
+import { deleteTrainingAsset, uploadTrainingAsset } from "@/lib/training-assets";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -31,7 +32,6 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const emptyCourse = { title: "", level: "Pemula", hours: "", track: "", points: "100" };
 const emptyTraining = {
   title: "",
   provider: "",
@@ -46,15 +46,77 @@ const emptyTraining = {
   capacity: "",
   registrationUrl: "",
 };
+const emptyNews = { title: "", excerpt: "", contentHtml: "" };
 
 function AdminPage() {
   const { loading, isAdmin } = useAdminAccess();
-  const [course, setCourse] = useState(emptyCourse);
   const [training, setTraining] = useState(emptyTraining);
+  const [news, setNews] = useState(emptyNews);
   const [trainingFile, setTrainingFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
+  const [newsImage, setNewsImage] = useState(null);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState("");
+  const [managedContent, setManagedContent] = useState({
+    courses: [],
+    training: [],
+    news: [],
+    promotions: [],
+  });
+  const [loadingContent, setLoadingContent] = useState(false);
+  const [deleting, setDeleting] = useState("");
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    let cancelled = false;
+    async function loadManagedContent() {
+      setLoadingContent(true);
+      try {
+        const [trainingSnapshot, coursesResult, newsResult, promotionsResult] = await Promise.all([
+          getDocs(collection(db, "training")),
+          supabase
+            ?.from("courses")
+            .select("id,title,provider,description,cover_image_url,created_at")
+            .order("created_at", { ascending: false }),
+          supabase
+            ?.from("news_posts")
+            .select("id,title,excerpt,cover_image_url,created_at")
+            .order("created_at", {
+              ascending: false,
+            }),
+          supabase
+            ?.from("promotions")
+            .select("id,name,owner_id,image_url,created_at")
+            .order("created_at", { ascending: false }),
+        ]);
+        if (coursesResult?.error)
+          throw new Error(`Kursus gagal dimuat: ${coursesResult.error.message}`);
+        if (newsResult?.error) throw new Error(`Berita gagal dimuat: ${newsResult.error.message}`);
+        if (promotionsResult?.error)
+          throw new Error(`Promosi gagal dimuat: ${promotionsResult.error.message}`);
+        if (!cancelled) {
+          setManagedContent({
+            courses: coursesResult?.data || [],
+            training: trainingSnapshot.docs.map((item) => ({ id: item.id, ...item.data() })),
+            news: newsResult?.data || [],
+            promotions: (promotionsResult?.data || []).map((item) => ({
+              ...item,
+              title: item.name,
+            })),
+          });
+        }
+      } catch (error) {
+        console.error("Gagal memuat konten admin", error);
+        if (!cancelled) setStatus(error.message || "Daftar konten gagal dimuat.");
+      } finally {
+        if (!cancelled) setLoadingContent(false);
+      }
+    }
+    loadManagedContent();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdmin]);
 
   if (loading) {
     return (
@@ -85,39 +147,18 @@ function AdminPage() {
     );
   }
 
-  async function saveCourse(event) {
-    event.preventDefault();
-    if (!db) {
-      setStatus("Firebase belum dikonfigurasi.");
-      return;
-    }
-    setSaving("course");
-    setStatus("");
-    try {
-      await addDoc(collection(db, "courses"), {
-        ...course,
-        id: slugify(course.title),
-        points: Number(course.points),
-        verified: false,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      setCourse(emptyCourse);
-      setStatus("Kursus berhasil ditambahkan.");
-    } catch (error) {
-      console.error("Gagal menyimpan kursus", error);
-      setStatus(error.message || "Kursus gagal ditambahkan.");
-    } finally {
-      setSaving("");
-    }
-  }
-
   async function saveTraining(event) {
     event.preventDefault();
-    if (!db) {
-      setStatus("Firebase belum dikonfigurasi.");
+    const isCourse = training.deliveryMode === "online";
+    if (isCourse && !supabase) {
+      setStatus("Supabase belum dikonfigurasi untuk menyimpan kursus.");
       return;
     }
+    if (!isCourse && !db) {
+      setStatus("Firebase belum dikonfigurasi untuk menyimpan pelatihan offline.");
+      return;
+    }
+
     if (training.contentType !== "manual" && !trainingFile) {
       setStatus("Pilih file PDF atau HTML untuk materi pelatihan.");
       return;
@@ -131,34 +172,52 @@ function AdminPage() {
     setStatus("");
     try {
       const [contentAsset, coverAsset] = await Promise.all([
-        trainingFile ? uploadTrainingAsset(trainingFile) : null,
-        coverFile ? uploadTrainingAsset(coverFile, "training/covers") : null,
+        trainingFile ? uploadTrainingAsset(trainingFile, isCourse ? "courses" : "training") : null,
+        coverFile
+          ? uploadTrainingAsset(coverFile, isCourse ? "courses/covers" : "training/covers")
+          : null,
       ]);
-      await addDoc(collection(db, "training"), {
-        title: training.title.trim(),
-        provider: training.provider.trim(),
-        description: training.description.trim(),
-        deliveryMode: training.deliveryMode,
-        contentType: training.contentType,
-        contentHtml: training.contentType === "manual" ? training.contentHtml : "",
-        contentUrl: contentAsset?.url || "",
-        contentFileName: contentAsset?.name || "",
-        coverImageUrl: coverAsset?.url || "",
-        startsAt: training.startsAt || "",
-        endsAt: training.endsAt || "",
-        venue: training.venue.trim(),
-        address: training.address.trim(),
-        capacity: training.capacity ? Number(training.capacity) : null,
-        registrationUrl: safeExternalUrl(training.registrationUrl),
-        status: "published",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+      if (isCourse) {
+        const { error } = await supabase.from("courses").insert({
+          title: training.title.trim(),
+          provider: training.provider.trim(),
+          description: training.description.trim(),
+          content_type: training.contentType,
+          content_html: training.contentType === "manual" ? training.contentHtml : "",
+          content_url: contentAsset?.url || null,
+          cover_image_url: coverAsset?.url || null,
+          status: "published",
+        });
+        if (error) throw new Error(`Kursus gagal disimpan: ${error.message}`);
+      } else {
+        await addDoc(collection(db, "training"), {
+          title: training.title.trim(),
+          provider: training.provider.trim(),
+          description: training.description.trim(),
+          deliveryMode: training.deliveryMode,
+          contentType: training.contentType,
+          contentHtml: training.contentType === "manual" ? training.contentHtml : "",
+          contentUrl: contentAsset?.url || "",
+          contentFileName: contentAsset?.name || "",
+          coverImageUrl: coverAsset?.url || "",
+          startsAt: training.startsAt || "",
+          endsAt: training.endsAt || "",
+          venue: training.venue.trim(),
+          address: training.address.trim(),
+          capacity: training.capacity ? Number(training.capacity) : null,
+          registrationUrl: safeExternalUrl(training.registrationUrl),
+          status: "published",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
       setTraining(emptyTraining);
       setTrainingFile(null);
       setCoverFile(null);
       event.target.reset();
-      setStatus("Pelatihan berhasil dipublikasikan.");
+      setStatus(
+        isCourse ? "Kursus berhasil dipublikasikan." : "Pelatihan offline berhasil dipublikasikan.",
+      );
     } catch (error) {
       console.error("Gagal menyimpan pelatihan", error);
       setStatus(error.message || "Pelatihan gagal disimpan.");
@@ -167,12 +226,98 @@ function AdminPage() {
     }
   }
 
+  async function saveNews(event) {
+    event.preventDefault();
+    if (!supabase) {
+      setStatus("Supabase belum dikonfigurasi.");
+      return;
+    }
+    if (!newsImage) {
+      setStatus("Pilih gambar berita.");
+      return;
+    }
+    setSaving("news");
+    setStatus("");
+    try {
+      const imageAsset = await uploadTrainingAsset(newsImage, "news");
+      const { error } = await supabase.from("news_posts").insert({
+        title: news.title.trim(),
+        slug: slugify(news.title),
+        excerpt: news.excerpt.trim(),
+        content_html: news.contentHtml,
+        cover_image_url: imageAsset.url,
+        status: "published",
+      });
+      if (error) throw new Error(`Berita gagal disimpan: ${error.message}`);
+      setNews(emptyNews);
+      setNewsImage(null);
+      event.target.reset();
+      setStatus("Berita berhasil dipublikasikan di landing page.");
+    } catch (error) {
+      console.error("Gagal menyimpan berita", error);
+      setStatus(error.message || "Berita gagal dipublikasikan.");
+    } finally {
+      setSaving("");
+    }
+  }
+
+  async function deleteContent(type, item) {
+    const label =
+      type === "news"
+        ? "berita"
+        : type === "courses"
+          ? "kursus"
+          : type === "promotions"
+            ? "promosi"
+            : "pelatihan";
+    if (!window.confirm(`Hapus ${label} "${item.title}"? Tindakan ini tidak dapat dibatalkan.`))
+      return;
+    const key = `${type}-${item.id}`;
+    setDeleting(key);
+    setStatus("");
+    try {
+      if (type === "news") {
+        if (!supabase) throw new Error("Supabase belum dikonfigurasi.");
+        if (item.cover_image_url) await deleteTrainingAsset(item.cover_image_url);
+        const { error } = await supabase.from("news_posts").delete().eq("id", item.id);
+        if (error) throw new Error(`Berita gagal dihapus: ${error.message}`);
+      } else if (type === "training") {
+        if (!db) throw new Error("Firebase belum dikonfigurasi.");
+        await Promise.all([
+          deleteTrainingAsset(item.contentUrl),
+          deleteTrainingAsset(item.coverImageUrl),
+        ]);
+        await deleteDoc(doc(db, type, item.id));
+      } else if (type === "promotions") {
+        if (!supabase) throw new Error("Supabase belum dikonfigurasi.");
+        if (item.image_url) await deleteTrainingAsset(item.image_url);
+        const { error } = await supabase.from("promotions").delete().eq("id", item.id);
+        if (error) throw new Error(`Promosi gagal dihapus: ${error.message}`);
+      } else {
+        if (!supabase) throw new Error("Supabase belum dikonfigurasi.");
+        if (item.cover_image_url) await deleteTrainingAsset(item.cover_image_url);
+        const { error } = await supabase.from("courses").delete().eq("id", item.id);
+        if (error) throw new Error(`Kursus gagal dihapus: ${error.message}`);
+      }
+      setManagedContent((current) => ({
+        ...current,
+        [type]: current[type].filter((content) => content.id !== item.id),
+      }));
+      setStatus(`${label[0].toUpperCase()}${label.slice(1)} berhasil dihapus.`);
+    } catch (error) {
+      console.error(`Gagal menghapus ${label}`, error);
+      setStatus(error.message || `${label} gagal dihapus.`);
+    } finally {
+      setDeleting("");
+    }
+  }
+
   return (
     <AppShell title="Admin" subtitle="Kelola konten pembelajaran Z UP">
       <div className="grid gap-6">
-        <section className="rounded-3xl bg-ink p-6 text-ink-foreground shadow-soft sm:p-8">
+        <section className="border-2 border-foreground bg-ink p-6 text-ink-foreground shadow-soft sm:p-8">
           <Badge className="bg-primary text-foreground">Administrator</Badge>
-          <h2 className="mt-4 text-2xl font-bold">Studio pelatihan</h2>
+          <h2 className="mt-4 font-heading text-2xl font-normal">Studio pelatihan</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
             Publikasikan materi mandiri seperti artikel bergaya Medium, PDF, atau HTML. Pelatihan
             offline juga bisa menyimpan jadwal, tempat, kapasitas, dan link pendaftaran.
@@ -181,66 +326,9 @@ function AdminPage() {
 
         {status && <p className="rounded-xl bg-secondary p-3 text-sm font-medium">{status}</p>}
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid items-start gap-6 lg:grid-cols-2">
           <AdminForm
-            title="Tambah kursus"
-            icon={BookOpen}
-            onSubmit={saveCourse}
-            busy={saving === "course"}
-          >
-            <Field label="Nama kursus *">
-              <Input
-                required
-                value={course.title}
-                onChange={(e) => setCourse({ ...course, title: e.target.value })}
-                placeholder="Pemasaran Digital untuk UMKM"
-              />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Level">
-                <select
-                  value={course.level}
-                  onChange={(e) => setCourse({ ...course, level: e.target.value })}
-                  className="flex h-9 w-full rounded-xl border border-input bg-transparent px-3 text-sm"
-                >
-                  <option>Pemula</option>
-                  <option>Menengah</option>
-                  <option>Lanjutan</option>
-                </select>
-              </Field>
-              <Field label="Durasi">
-                <Input
-                  required
-                  value={course.hours}
-                  onChange={(e) => setCourse({ ...course, hours: e.target.value })}
-                  placeholder="12 jam"
-                />
-              </Field>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Bidang">
-                <Input
-                  required
-                  value={course.track}
-                  onChange={(e) => setCourse({ ...course, track: e.target.value })}
-                  placeholder="Pemasaran"
-                />
-              </Field>
-              <Field label="Poin">
-                <Input
-                  required
-                  type="number"
-                  min="0"
-                  max="10000"
-                  value={course.points}
-                  onChange={(e) => setCourse({ ...course, points: e.target.value })}
-                />
-              </Field>
-            </div>
-          </AdminForm>
-
-          <AdminForm
-            title="Publikasikan pelatihan"
+            title="Tambah kursus & pelatihan"
             icon={GraduationCap}
             onSubmit={saveTraining}
             busy={saving === "training"}
@@ -391,7 +479,60 @@ function AdminPage() {
               />
             </Field>
           </AdminForm>
+          <AdminForm
+            title="Posting berita"
+            icon={FileText}
+            onSubmit={saveNews}
+            busy={saving === "news"}
+          >
+            <Field label="Judul berita *">
+              <Input
+                required
+                value={news.title}
+                onChange={(e) => setNews({ ...news, title: e.target.value })}
+                placeholder="Program pelatihan baru untuk talenta muda"
+              />
+            </Field>
+            <Field label="Ringkasan *">
+              <Textarea
+                required
+                rows={3}
+                value={news.excerpt}
+                onChange={(e) => setNews({ ...news, excerpt: e.target.value })}
+                placeholder="Ringkasan yang tampil di landing page..."
+              />
+            </Field>
+            <Field label="Isi berita HTML *">
+              <Textarea
+                required
+                rows={7}
+                value={news.contentHtml}
+                onChange={(e) => setNews({ ...news, contentHtml: e.target.value })}
+                placeholder="<p>Tulis isi berita di sini...</p>"
+                className="font-mono text-xs"
+              />
+            </Field>
+            <Field label="Gambar berita *">
+              <Input
+                type="file"
+                required
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => setNewsImage(e.target.files?.[0] || null)}
+                className="h-10 pt-2"
+              />
+              <span className="mt-1 text-xs font-normal">
+                Gambar disimpan di bucket Supabase Storage <strong>content-assets/news</strong>.
+              </span>
+            </Field>
+          </AdminForm>
         </div>
+
+        <ManagedContent
+          content={managedContent}
+          loading={loadingContent}
+          deleting={deleting}
+          onDelete={deleteContent}
+        />
 
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
           <ExternalLink className="size-3.5" /> File membutuhkan env Supabase dan sesi admin
@@ -399,6 +540,78 @@ function AdminPage() {
         </p>
       </div>
     </AppShell>
+  );
+}
+
+function ManagedContent({ content, loading, deleting, onDelete }) {
+  const groups = [
+    { key: "courses", label: "Kursus", items: content.courses },
+    { key: "training", label: "Pelatihan", items: content.training },
+    { key: "news", label: "Berita", items: content.news },
+    { key: "promotions", label: "Promosi usaha", items: content.promotions },
+  ];
+
+  return (
+    <section className="space-y-4">
+      <div>
+        <h2 className="font-heading text-2xl font-normal">Kelola publikasi</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Hapus kursus, pelatihan, berita, atau promosi yang sudah tidak ingin ditampilkan.
+        </p>
+      </div>
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Memuat publikasi...</p>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {groups.map(({ key, label, items }) => (
+            <Card key={key} className="border-border shadow-soft">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between gap-3 text-base">
+                  <span>{label}</span>
+                  <Badge variant="secondary">{items.length}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {items.length === 0 && (
+                  <p className="text-sm text-muted-foreground">Belum ada {label.toLowerCase()}.</p>
+                )}
+                {items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-start justify-between gap-3 border-2 border-border bg-secondary/40 p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="line-clamp-2 text-sm font-bold">{item.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {key === "training"
+                          ? item.deliveryMode === "offline"
+                            ? "Offline"
+                            : "Online"
+                          : key === "news"
+                            ? "Landing page"
+                            : key === "promotions"
+                              ? "Etalase komunitas"
+                              : item.track || "Kursus"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      aria-label={`Hapus ${label.toLowerCase()} ${item.title}`}
+                      disabled={deleting === `${key}-${item.id}`}
+                      onClick={() => onDelete(key, item)}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -6,7 +6,7 @@ Z-Talent Nexus adalah aplikasi digital inovatif berbasis web yang dirancang khus
 
 Fitur unggulan kami meliputi:
 
-Asesmen Keterampilan Interaktif: Menganalisis skill gap pengguna dibandingkan dengan kebutuhan industri.
+Tes Minat Bakat Interaktif: Menganalisis minat dan bakat pengguna untuk memberikan arah karier yang relevan.
 
 AI CV Builder: Pembuatan CV otomatis yang ramah ATS menggunakan kecerdasan buatan (Groq API).
 
@@ -56,7 +56,7 @@ Dasbor Utama ➔ Pengguna melihat ringkasan profil, XP, dan status level.
 
 Pemilihan Aksi:
 
-Opsi A: Mengambil "Asesmen Keterampilan" untuk memperbarui grafik radar skill.
+Opsi A: Mengambil "Tes Minat Bakat" untuk mendapatkan rekomendasi arah karier.
 
 Opsi B: Melanjutkan "Kursus Saya" untuk menambah persentase XP.
 
@@ -142,10 +142,12 @@ Nilai `FIREBASE_*` tersebut hanya boleh berada di environment server/administrat
 
 Pelatihan online/offline:
 
-- Panel **Admin** dapat membuat materi artikel manual (HTML bergaya Medium), PDF, atau file HTML.
-- Pelatihan offline memiliki tanggal mulai/selesai, tempat, alamat, kapasitas, dan link pendaftaran.
+- Panel **Admin** dapat membuat kursus online dengan materi artikel manual (HTML bergaya Medium), PDF, atau file HTML.
+- Kursus online dan asetnya disimpan di tabel Supabase `courses`; koleksi Firestore `courses` lama tidak lagi dibaca aplikasi.
+- Pelatihan offline memiliki tanggal mulai/selesai, tempat, alamat, kapasitas, dan link pendaftaran, serta tetap memakai koleksi Firestore `training`.
 - Untuk menyimpan file materi dan cover ke Supabase Storage, jalankan `supabase/schema.sql` di SQL Editor, isi dua `VITE_SUPABASE_*`, lalu aktifkan Firebase sebagai **Third-party Auth provider** di Supabase. Aplikasi mengirim Firebase ID token dan policy membaca custom claim Firebase `admin: true`. Jika schema lama sudah pernah dijalankan, jalankan `supabase/fix-firebase-auth.sql`. Metadata pelatihan tetap disimpan di Firestore pada koleksi `training`.
-- Skema yang sama sudah menyediakan tabel `news_posts` dan bucket `content-assets` agar gambar news dapat dipakai tanpa migrasi ulang.
+- Skema yang sama sudah menyediakan tabel `news_posts`, `courses`, dan bucket `content-assets` agar gambar news serta materi kursus dapat dipakai tanpa migrasi ulang.
+- Fitur **Promosi Usaha** memakai tabel Supabase `promotions`. Postingan publik dapat dibaca semua pengguna yang login, gambar tersimpan di `content-assets/promotions/<firebase-uid>/`, pemilik dapat menghapus postingannya sendiri, dan admin dapat menghapus postingan yang tidak pantas. Jalankan ulang `supabase/schema.sql` untuk instalasi baru atau `supabase/fix-firebase-auth.sql` untuk database yang sudah ada.
 - Jangan menaruh `service_role` key di browser. `VITE_SUPABASE_ANON_KEY` aman untuk client hanya jika RLS pada `supabase/schema.sql` sudah aktif.
 
 Jalankan Server Lokal:

@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 /** Menu sidebar — mencerminkan 3 pilar plus area akun. */
 const navItems = [
   { label: "Dasbor", to: "/dashboard", icon: LayoutDashboard },
-  { label: "Asesmen Keterampilan", to: "/assessment", icon: Sparkles },
+  { label: "Tes Minat Bakat", to: "/assessment", icon: Sparkles },
   { label: "Kursus Saya", to: "/courses", icon: GraduationCap },
   { label: "CV & Portofolio", to: "/cv", icon: FileUser },
   { label: "Siap Kerja", to: "/siap-kerja", icon: Briefcase },
@@ -41,7 +41,7 @@ export function AppShell({ title, subtitle, children }) {
     ? [...navItems, { label: "Admin", to: "/admin", icon: ShieldCheck }]
     : navItems;
   return (
-    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+    <div className="app-shell min-h-screen bg-background lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       {/* Mobile overlay */}
       {open && (
         <button
@@ -127,11 +127,7 @@ export function AppShell({ title, subtitle, children }) {
                 <Menu className="size-4" />
               </button>
               <div className="min-w-0">
-                <h1
-                  className={`truncate text-base font-bold sm:text-lg ${
-                    pathname === "/dashboard" ? "tracking-[0.025em]" : "tracking-tight"
-                  }`}
-                >
+                <h1 className="truncate font-heading text-base font-normal tracking-[0.025em] sm:text-lg">
                   {title}
                 </h1>
                 {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}

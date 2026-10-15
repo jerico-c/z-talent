@@ -8,9 +8,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { auth } from "@/lib/firebase";
+import { useAdminAccess } from "@/lib/admin";
+import { deleteTrainingAsset, uploadPromotionAsset } from "@/lib/training-assets";
+import { supabase } from "@/lib/supabase";
 import { useUserProfile } from "@/lib/user-profile";
 
-const STORAGE_KEY = "ztalent-promotions-v2";
 const emptyForm = {
   name: "",
   category: "Kuliner",
@@ -18,30 +20,7 @@ const emptyForm = {
   city: "",
   contact: "",
   link: "",
-  image: "",
 };
-const samplePromotions = [
-  {
-    id: "sample-kopi",
-    name: "Kopi Lereng Magelang",
-    category: "Kuliner",
-    description: "Kopi lokal dengan biji pilihan dari petani lereng Sumbing.",
-    city: "Magelang",
-    contact: "WhatsApp tersedia",
-    link: "#",
-    image: "",
-  },
-  {
-    id: "sample-ruang-karya",
-    name: "Ruang Karya Muda",
-    category: "Jasa kreatif",
-    description: "Desain konten dan branding untuk bisnis lokal yang ingin naik kelas.",
-    city: "Yogyakarta",
-    contact: "Konsultasi gratis",
-    link: "#",
-    image: "",
-  },
-];
 
 export const Route = createFileRoute("/promosi")({
   head: () => ({
@@ -58,30 +37,43 @@ export const Route = createFileRoute("/promosi")({
 
 function PromosiPage() {
   const { profile } = useUserProfile();
+  const { isAdmin } = useAdminAccess();
   const canPost = Boolean(auth?.currentUser);
-  const storageKey = `${STORAGE_KEY}:${auth?.currentUser?.uid || "guest"}`;
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [imageFile, setImageFile] = useState(null);
   const [promotions, setPromotions] = useState([]);
-  const [loadedStorageKey, setLoadedStorageKey] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      setPromotions(Array.isArray(saved) ? saved : []);
-      setLoadedStorageKey(storageKey);
-    } catch {
-      setPromotions([]);
+    let active = true;
+    async function loadPromotions() {
+      if (!supabase) {
+        setError("Supabase belum dikonfigurasi.");
+        setLoading(false);
+        return;
+      }
+      const { data, error: queryError } = await supabase
+        .from("promotions")
+        .select("id,owner_id,name,category,description,city,contact,link,image_url,created_at")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      if (queryError) {
+        console.error("Gagal memuat promosi usaha", queryError);
+        if (active) setError(`Promosi gagal dimuat: ${queryError.message}`);
+      } else if (active) {
+        setPromotions(data || []);
+      }
+      if (active) setLoading(false);
     }
-  }, [storageKey]);
-
-  useEffect(() => {
-    if (loadedStorageKey === storageKey) {
-      localStorage.setItem(storageKey, JSON.stringify(promotions));
-    }
-  }, [loadedStorageKey, promotions, storageKey]);
-
-  const allPromotions = [...promotions, ...samplePromotions];
+    loadPromotions();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -94,9 +86,7 @@ function PromosiPage() {
       event.target.value = "";
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => updateField("image", String(reader.result));
-    reader.readAsDataURL(file);
+    setImageFile(file);
   }
 
   function safeLink(value) {
@@ -109,23 +99,65 @@ function PromosiPage() {
     }
   }
 
-  function submitPromotion(event) {
+  async function submitPromotion(event) {
     event.preventDefault();
     if (!form.name.trim() || !form.description.trim() || !form.city.trim()) return;
-    setPromotions((current) => [
-      {
-        ...form,
-        id: `${Date.now()}-${form.name}`,
-        name: form.name.trim(),
-        description: form.description.trim(),
-        city: form.city.trim(),
-        contact: form.contact.trim() || "Hubungi pemilik usaha",
-        link: safeLink(form.link),
-      },
-      ...current,
-    ]);
-    setForm(emptyForm);
-    setShowForm(false);
+    if (!supabase || !auth?.currentUser) {
+      setError("Sesi login atau Supabase belum siap.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const imageAsset = await uploadPromotionAsset(imageFile);
+      const { data, error: insertError } = await supabase
+        .from("promotions")
+        .insert({
+          owner_id: auth.currentUser.uid,
+          name: form.name.trim(),
+          category: form.category,
+          description: form.description.trim(),
+          city: form.city.trim(),
+          contact: form.contact.trim() || "Hubungi pemilik usaha",
+          link: safeLink(form.link),
+          image_url: imageAsset?.url || null,
+          status: "published",
+        })
+        .select("id,owner_id,name,category,description,city,contact,link,image_url,created_at")
+        .single();
+      if (insertError) throw new Error(`Posting gagal disimpan: ${insertError.message}`);
+      setPromotions((current) => [data, ...current]);
+      setForm(emptyForm);
+      setImageFile(null);
+      setShowForm(false);
+    } catch (submitError) {
+      console.error("Gagal menyimpan promosi usaha", submitError);
+      setError(submitError.message || "Posting gagal disimpan.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deletePromotion(promotion) {
+    const owner = promotion.owner_id === auth?.currentUser?.uid;
+    if (!owner && !isAdmin) return;
+    if (!window.confirm(`Hapus posting "${promotion.name}"?`)) return;
+    setDeleting(promotion.id);
+    setError("");
+    try {
+      if (promotion.image_url) await deleteTrainingAsset(promotion.image_url);
+      const { error: deleteError } = await supabase
+        .from("promotions")
+        .delete()
+        .eq("id", promotion.id);
+      if (deleteError) throw new Error(`Posting gagal dihapus: ${deleteError.message}`);
+      setPromotions((current) => current.filter((item) => item.id !== promotion.id));
+    } catch (deleteError) {
+      console.error("Gagal menghapus promosi usaha", deleteError);
+      setError(deleteError.message || "Posting gagal dihapus.");
+    } finally {
+      setDeleting("");
+    }
   }
 
   return (
@@ -138,7 +170,7 @@ function PromosiPage() {
           <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div>
               <Badge className="bg-primary text-foreground">Etalase komunitas</Badge>
-              <h2 className="mt-4 max-w-2xl text-2xl font-bold tracking-tight sm:text-3xl">
+              <h2 className="mt-4 max-w-2xl font-heading text-2xl font-normal sm:text-3xl">
                 Usaha muda, cerita nyata, peluang baru.
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-muted">
@@ -157,6 +189,9 @@ function PromosiPage() {
           </div>
         </section>
 
+        {error && (
+          <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
+        )}
         {showForm && (
           <Card className="border-foreground shadow-soft">
             <CardContent className="p-5 sm:p-6">
@@ -248,13 +283,11 @@ function PromosiPage() {
                     />
                   </Field>
                 </div>
-                {form.image && (
+                {imageFile && (
                   <div className="sm:col-span-2">
-                    <img
-                      src={form.image}
-                      alt="Pratinjau gambar usaha"
-                      className="h-40 w-full rounded-2xl object-cover sm:w-64"
-                    />
+                    <p className="text-sm text-muted-foreground">
+                      Gambar dipilih: {imageFile.name}
+                    </p>
                   </div>
                 )}
                 <div className="flex flex-wrap justify-end gap-2 sm:col-span-2">
@@ -270,7 +303,7 @@ function PromosiPage() {
                     type="submit"
                     className="rounded-xl bg-ink text-ink-foreground hover:bg-raven"
                   >
-                    Terbitkan posting
+                    {saving ? "Menyimpan..." : "Terbitkan posting"}
                   </Button>
                 </div>
               </form>
@@ -283,15 +316,19 @@ function PromosiPage() {
             <h2 className="text-lg font-bold">Usaha dari komunitas</h2>
             <p className="mt-1 text-sm text-muted-foreground">Dukung karya dan bisnis anak muda.</p>
           </div>
-          <span className="text-sm text-muted-foreground">{allPromotions.length} usaha</span>
+          <span className="text-sm text-muted-foreground">{promotions.length} usaha</span>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {allPromotions.map((promotion) => (
+          {loading && <p className="text-sm text-muted-foreground">Memuat posting usaha...</p>}
+          {!loading && promotions.length === 0 && (
+            <p className="text-sm text-muted-foreground">Belum ada posting usaha dari komunitas.</p>
+          )}
+          {promotions.map((promotion) => (
             <Card key={promotion.id} className="group overflow-hidden border-border shadow-soft">
-              {promotion.image ? (
+              {promotion.image_url ? (
                 <img
-                  src={promotion.image}
+                  src={promotion.image_url}
                   alt={promotion.name}
                   className="h-44 w-full object-cover"
                 />
@@ -329,6 +366,18 @@ function PromosiPage() {
                   >
                     Lihat detail <ExternalLink className="size-3.5" />
                   </a>
+                )}
+                {(promotion.owner_id === auth?.currentUser?.uid || isAdmin) && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="mt-4 rounded-xl"
+                    disabled={deleting === promotion.id}
+                    onClick={() => deletePromotion(promotion)}
+                  >
+                    {deleting === promotion.id ? "Menghapus..." : "Hapus posting"}
+                  </Button>
                 )}
               </CardContent>
             </Card>

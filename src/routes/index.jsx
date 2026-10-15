@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
 import downArrowImage from "../assets/down_arrow.png";
 import leftArrowImage from "../assets/left_arrow.png";
 import normalImage from "../assets/normal.png";
@@ -373,7 +374,28 @@ function PaintStudio() {
 
 export default function LandingPage() {
   const [keyboardDirection, setKeyboardDirection] = useState("normal");
+  const [newsPosts, setNewsPosts] = useState([]);
+  const [selectedNews, setSelectedNews] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+    const loadNews = async () => {
+      const { data, error } = await supabase
+        .from("news_posts")
+        .select("id, title, excerpt, content_html, cover_image_url, created_at")
+        .eq("status", "published")
+        .order("created_at", { ascending: false })
+        .limit(6);
+      if (error) {
+        console.error("Gagal memuat berita landing page", error);
+        return;
+      }
+      setNewsPosts(data || []);
+    };
+    loadNews();
+    return undefined;
+  }, []);
 
   const handleKeyboardHover = (event) => {
     const { offsetX, offsetY } = event.nativeEvent;
@@ -399,7 +421,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col font-body">
+    <div className="landing-page min-h-screen bg-background flex flex-col font-body">
       {/* Header / Navigasi Atas */}
       <header className="w-full border-b-2 border-foreground bg-primary px-6 py-4 flex justify-between items-center z-10 sticky top-0">
         <div className="flex items-center">
@@ -520,28 +542,93 @@ export default function LandingPage() {
             Cerita dan peluang terbaru dari Z UP.
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
-              <p className="font-mono text-sm font-bold text-primary">Segera Hadir</p>
-              <h3 className="mt-3 font-heading text-2xl font-bold">Program pengembangan skill</h3>
-              <p className="mt-3 text-ink-muted">
-                Nantikan kabar terbaru tentang pelatihan dan aktivitas pengembangan karier.
-              </p>
-            </article>
-            <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
-              <p className="font-mono text-sm font-bold text-accent">Peluang</p>
-              <h3 className="mt-3 font-heading text-2xl font-bold">Temukan langkah kariermu</h3>
-              <p className="mt-3 text-ink-muted">
-                Dapatkan informasi peluang kerja dan proyek yang relevan dengan potensimu.
-              </p>
-            </article>
-            <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
-              <p className="font-mono text-sm font-bold text-primary">Komunitas</p>
-              <h3 className="mt-3 font-heading text-2xl font-bold">Bertumbuh bersama</h3>
-              <p className="mt-3 text-ink-muted">
-                Ikuti cerita inspiratif dan insight dari talenta muda Indonesia.
-              </p>
-            </article>
+            {newsPosts.map((post) => (
+              <article
+                key={post.id}
+                className="cursor-pointer overflow-hidden border-2 border-ink-muted/50 bg-ink-foreground/5 transition hover:-translate-y-1 hover:border-primary"
+                onClick={() => setSelectedNews(post)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedNews(post);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Baca berita ${post.title}`}
+              >
+                {post.cover_image_url && (
+                  <img
+                    src={post.cover_image_url}
+                    alt=""
+                    className="h-44 w-full object-cover"
+                    loading="lazy"
+                  />
+                )}
+                <div className="p-6">
+                  <p className="font-mono text-sm font-bold text-primary">Berita</p>
+                  <h3 className="mt-3 font-heading text-2xl font-bold">{post.title}</h3>
+                  <p className="mt-3 text-ink-muted">{post.excerpt}</p>
+                  <p className="mt-5 text-sm font-bold text-primary">Baca selengkapnya →</p>
+                </div>
+              </article>
+            ))}
+            {newsPosts.length === 0 && (
+              <>
+                <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
+                  <p className="font-mono text-sm font-bold text-primary">Segera Hadir</p>
+                  <h3 className="mt-3 font-heading text-2xl font-bold">
+                    Program pengembangan skill
+                  </h3>
+                  <p className="mt-3 text-ink-muted">
+                    Nantikan kabar terbaru tentang pelatihan dan aktivitas pengembangan karier.
+                  </p>
+                </article>
+                <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
+                  <p className="font-mono text-sm font-bold text-accent">Peluang</p>
+                  <h3 className="mt-3 font-heading text-2xl font-bold">Temukan langkah kariermu</h3>
+                  <p className="mt-3 text-ink-muted">
+                    Dapatkan informasi peluang kerja dan proyek yang relevan dengan potensimu.
+                  </p>
+                </article>
+                <article className="border-2 border-ink-muted/50 bg-ink-foreground/5 p-6">
+                  <p className="font-mono text-sm font-bold text-primary">Komunitas</p>
+                  <h3 className="mt-3 font-heading text-2xl font-bold">Bertumbuh bersama</h3>
+                  <p className="mt-3 text-ink-muted">
+                    Ikuti cerita inspiratif dan insight dari talenta muda Indonesia.
+                  </p>
+                </article>
+              </>
+            )}
           </div>
+          {selectedNews && (
+            <article className="mt-8 border-2 border-primary bg-background p-6 text-foreground shadow-[5px_5px_0_var(--primary)] sm:p-8">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-sm font-bold text-primary">Berita Z UP</p>
+                  <h3 className="mt-2 font-heading text-3xl font-normal">{selectedNews.title}</h3>
+                </div>
+                <button
+                  type="button"
+                  className="border-2 border-foreground px-3 py-1 text-sm font-bold hover:bg-primary"
+                  onClick={() => setSelectedNews(null)}
+                >
+                  Tutup
+                </button>
+              </div>
+              {selectedNews.cover_image_url && (
+                <img
+                  src={selectedNews.cover_image_url}
+                  alt=""
+                  className="mt-6 max-h-96 w-full object-cover"
+                />
+              )}
+              <div
+                className="news-content mt-6 max-w-4xl leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: sanitizeNewsHtml(selectedNews.content_html) }}
+              />
+            </article>
+          )}
         </div>
       </section>
 
@@ -571,4 +658,8 @@ export default function LandingPage() {
       </footer>
     </div>
   );
+}
+
+function sanitizeNewsHtml(value = "") {
+  return value.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "");
 }
